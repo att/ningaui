@@ -1,0 +1,155 @@
+#!/usr/common/ast/bin/ksh
+# this is a bootstrap build script.  We prefer to build with mk in this
+# directory, but if mk is not available, then we can run this first to 
+# build mk and install it. 
+
+trap abort ERR
+
+function abort
+{
+	echo "something failed -- exiting bad"
+}
+
+set -e
+
+function my_ranlib
+{
+	if whence ranlib >/dev/null 2>&1
+	then
+		ranlib $*
+	fi
+}
+
+# precompile ----------------------------- bloody suns need this
+function precompile
+{
+	x=`uname`
+	for d in $libdirs $dirs
+	do
+		
+		(
+		echo "precompile: $d -----------------------"
+		cd $d
+		if [[ -f Makefile.alt.$x ]]
+		then
+			cp Makefile.alt.$x Makefile
+		fi
+		)
+	done
+}
+
+# all ----------------------------------------
+function all
+{
+	SYSNAME=`uname`; export SYSNAME			# bloody suns need this!
+	OBJTYPE=`uname -m | sed 's;i.86;386;; s;/.*;;; s; ;;g'`; export OBJTYPE
+
+	for x in $libdirs
+	do
+		(
+		echo "all: $x -----------------------"
+		cd $x
+		$make
+		my_ranlib *.a
+		)
+	done
+	for x in $dirs
+	do
+		(
+		echo "all: $x -----------------------"
+		cd $x
+		$make
+		)
+	done
+}
+
+# clean --------------------------------------------
+function clean 
+{
+	for x in $dirs $libdirs
+	do
+		(
+		echo "clean: $x -----------------------"
+		cd $x
+		$make clean
+		)
+	done
+}
+
+
+# install -----------------------------------------
+function install
+{
+	echo "install: $x ---------------------------"
+	(
+		cd mk; 
+		if [[ -f $PKG_ROOT/bin/mk ]]
+		then
+			mv -f $PKG_ROOT/bin/mk $PKG_ROOT/bin/mk-; 
+		fi
+		cp mk $PKG_ROOT/bin/mk
+		cp mk $NG_SRC/.bin/mk
+		ls -al  $PKG_ROOT/bin/mk
+		ls -al  $NG_SRC/.bin/mk
+	)
+}
+
+# ----------------------------------------------------------
+
+# bloody sgi make cannot do this internally without barfing, so we must set and export
+export SYSNAME=`uname`
+export OBJTYPE=`uname -m | sed 's;i.86;386;; s;/.*;;; s; ;;g'`
+export GLMK_CC=gcc	
+
+if [[ $1 = '-?' ]]
+then
+	echo "build mk and install into $PGK_ROOT/bin"
+	echo "if no parms supplied, mk is built and installed"
+	echo "usage: build [clean|precompile|all|install]"
+	exit 1
+fi
+
+libdirs="libbio libfmt libregexp libutf"
+dirs="mk"
+make=make
+
+if [[ -z $NG_ROOT ]]
+then
+	echo "NG_ROOT not set -- must have set"
+	exit 1
+fi
+
+if [[ -z $PKG_ROOT ]]
+then
+	PKG_ROOT=$NG_ROOT
+fi
+
+if [[ ! -d $NG_ROOT || ! -d $PKG_ROOT ]]
+then
+	echo "directory missing: ng_root=$NG_ROOT or pkg_root=${PKG_ROOT:-unset}"
+	exit 1
+fi
+
+if [[ -z $1 ]]
+then
+	what="clean precompile all install"
+else
+	what="$@"
+fi
+
+if whence gmake >/dev/null 2>&1
+then
+	make=gmake
+fi
+
+for task in $what
+do
+	case $task in 
+		pre*)		precompile;;
+		all)		all;;
+		clean|nuke) 	clean;;
+		inst*)		install;;
+		*)	echo "unknonwn task: $task"; exit 1;;
+	esac
+done
+

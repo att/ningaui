@@ -1,0 +1,189 @@
+
+# ======================================================================== v1.0/0a157 
+#                                                         
+#       This software is part of the AT&T Ningaui distribution 
+#	
+#       Copyright (c) 2001-2009 by AT&T Intellectual Property. All rights reserved
+#	AT&T and the AT&T logo are trademarks of AT&T Intellectual Property.
+#	
+#       Ningaui software is licensed under the Common Public
+#       License, Version 1.0  by AT&T Intellectual Property.
+#                                                                      
+#       A copy of the License is available at    
+#       http://www.opensource.org/licenses/cpl1.0.txt             
+#                                                                      
+#       Information and Software Systems Research               
+#       AT&T Labs 
+#       Florham Park, NJ                            
+#	
+#	Send questions, comments via email to ningaui_support@research.att.com.
+#	
+#                                                                      
+# ======================================================================== 0a229
+
+
+#
+#	must be careful with install.  The lower packages are sometimes picked up 
+#	and assume that install means into a /usr/local/bin or somesuch.  	
+#
+#	as we decend, we check for mkfile first, then Nmakefile, and if neither 
+#	are there, assume some gmake is instaled.
+#
+#	gre - Andrew's grep on steriods
+#	mk  - Andrew's plan-9 make
+#	kpv - A set of libraries and tools from Phong (kpv)
+#	xfm - Scott's suite of text formatting interprteters: rfm, pfm, tfm and hfm
+#	tail- We bashed tail to generate tac as some UNIX flavours of tail omit -r support
+#		tac is just a reverse cat.
+#
+#	
+#	Mods:
+# 	25 Aug 2005 :  converted to mk   (sd) (HBD RMH)
+#	31 Aug 2005 (sd) : fixed OBJTYPE so that it works on the suns
+#	07 Sep 2005 (sd) : forced ranlib on *.a in EVERY situation (bloody macs)
+#	07 Oct 2005 (sd) : Better support for install from directories that do support ng_make install
+#	11 Nov 2005 (sd) : Added xfm (transferred from potoroo)
+#	18 Aug 2006 (sd) : Added export support 
+#	09 Nov 2007 (sd) : Added fettle
+#
+
+# must be set in EVERY mkfile AND in panoptic.mk -- erk.
+MKSHELL = `echo ${GLMK_SHELL:-ksh}`		
+
+# lib dirs are precompiled but not installed; they are needed only for mk
+# dirs is a list of directories where we decend and mk/gmake everything
+# idirs are directories that support ng_make install; the others must have specal things added
+# to the install: recipe
+#
+libdirs = libbio libfmt libregexp libutf 
+dirs = mk xfm gre kpv tail fettle
+idirs = gre xfm kpv tail fettle
+
+# these must be set before panoptic is pulled in
+#
+SCDSRC = 
+INSTALL= 
+ALL= 
+
+htmlcat = contrib
+
+# these are used to include various Make.* files when building mk.
+# bloody suns need these defined here! (and so do the sgis) because their flavour of make is old
+SYSNAME=`uname`			
+OBJTYPE=`uname -m | sed 's/i.86/386/; s!/.*!!; s! !!g'`
+
+< $NG_SRC/panoptic.mk
+
+GLMK_CC = $CC			#must ensure this is set for darwin builds Make.*darwin stuff
+
+NUKE = $NUKE  *.man 
+
+lib_needs = $libng 					# ningaui libs that we need (in search order)
+lib_depends = ${lib_needs:%=$NG_SRC/stlib/lib%.a} 	# full paths for the dependancy list
+lib_ref = -L$NG_SRC/stlib ${lib_needs:%=-l%} 		# references for (g)cc command
+last_ref = -L$AST/lib -last
+
+all:
+	for x in $libdirs
+	do
+		(
+			cd $x
+			$gmake
+			ranlib *.a 2>/dev/null ||true
+		)
+	done
+	for x in $dirs
+	do
+		if [[ -d $x ]]				# not all directories are included in the release; do the ones we have
+		then
+			(
+			cd $x
+			# do NOT use ng_make here
+			if [[ -f mkfile ]]
+			then
+				mk
+			else
+				if [[ -f Nmakefile ]]
+				then
+					nmake
+				else
+					$gmake
+				fi
+			fi
+			)
+		fi
+	done
+
+manpages:V:
+	echo "no manpage generation for contrib at the moment"
+
+nuke:	clean
+clean:
+	for x in $libdirs $dirs
+	do
+		if [[ -d $x ]]				# not all directories are included in the release; do the ones we have
+		then
+			(
+			cd $x
+			if [[ -f mkfile ]]
+			then
+				mk  nuke
+			else
+				if [[ -f Nmakefile ]]
+				then
+					nmake  nuke
+				else
+					$gmake clean
+				fi
+			fi
+			)
+		fi
+	done
+
+precompile:
+	x=`uname`
+	for d in $libdirs $dirs
+	do
+		if [[ -d $d ]]				# not all directories are included in the release; do the ones we have
+		then
+			(
+			cd $d
+			if test -f Makefile.alt.$x
+			then
+				cp Makefile.alt.$x Makefile	# we have some systems that cannot handle the makefiles in the release
+			fi					# shove in our adjusted one that works.
+		
+			# do NOT use ng_make here as we need gmake 
+			if [[ -f mkfile ]]
+			then
+				mk  precompile
+			else
+				if [[ -f Nmakefile ]]
+				then
+					nmake  precompile
+				else
+					$gmake 
+				fi
+			fi
+		
+			for l in *.a
+			do
+				ranlib $l 2>/dev/null ||true
+			done
+			)
+		fi
+	done
+	
+# some directories (not listed in idirs) must have special handling here
+install:
+	(cd mk; ng_install mk $PKG_ROOT/bin/mk)
+	for d in $idirs
+	do
+		if [[ -d $d ]]				# not all directories are included in the release; do the ones we have
+		then
+			(
+				cd $d
+				ng_make install
+			)
+		fi
+	done

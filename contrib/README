@@ -1,0 +1,16 @@
+
+This directory contains software which was pulled as third party,
+publically available, source or was contributed by other members
+of AT&T Labs Research directly to the Ningaui project:
+
+fettle	- Andrew Hume's machine room rack design software
+gre 	- A grep replacement
+kpv		- Phong Vo, David Korn, Glen Fowler's sfio
+mk		- Andrew Hume's Make replacement 
+libbio	- mk support
+libfmt	- mk support
+libregexp	- mk support
+libutf	- mk support
+tail	- Specialised tail utility
+xfm		- E. Scott Daniels' document formatting utilities 
+			(more recent versions should be used and are available on github)
