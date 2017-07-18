@@ -1,0 +1,194 @@
+      
+  
+  
+  NAME 
+
+      
+     ng_build.ksh - Bootstrap build on a non-ningaui node 
+      
+  
+  
+  SYNOPSIS 
+
+      
+     ng_build.ksh [-a] [-c cvs-host] [-D build-dir] [-d cvs-dir] [-f] 
+     [-h] [-k] [-R root-dir] [-t tmp-dir] [-v] 
+      
+     ng_build.ksh [-v] -i ng-root-directory 
+      
+  
+  
+  DESCRIPTION 
+
+      
+     Ng_build.ksh  script  creates  a  build  environment  in  which  ningaui 
+     software can be compiled. If the source is not already  in  the  current 
+     working  directory,  and  the CVS host with the source is available, the 
+     source is fetched. If the all (-a) option is  supplied  on  the  command 
+     line, ng_build.ksh will attempt to compile all of the source. 
+      
+     In  general, ng_build.ksh is used to compile ningaui source and place it 
+     into a 'build root' directory structure from which ningaui packages  can 
+     be  created.  It  is  possible  to supply a real 'root' directory on the 
+     command line (-R) which will  cause  the  newly  built  software  to  be 
+     installed  into  the named directory, rather than it being placed into a 
+     subdirectory to the current working directory. 
+      
+     Ng_build.ksh will attempt to fetch the ningaui source from the CVS  host 
+     if  it  believes  the  source  does  not  already  exist  in the current 
+     directory tree. The force (-f) option can be used to force a  fetch.  If 
+     the CVS host that holds the ningaui source is not available using the -f 
+     option will cause the script to fail. 
+      
+     At a minimum, this script sets  up  the  following  directories  in  the 
+     current working directory: 
+      
+           
+           .bin        A  small  set  of tools and scripts that are needed by 
+                       the build process. 
+                        
+           bld_root    A directory used  as  NG_ROOT  (PKG_ROOT)  during  the 
+                       build process. The installation step of the build will 
+                       install scripts, binaries and  other  files  into  the 
+                       directories under this directory. The -R option causes 
+                       the  script  to  use  an  alternate  'root'  directory 
+                       allowing  the  newly  built  software  to  be directly 
+                       installed. 
+                        
+           include     Ningaui header files are placed here. 
+                        
+           stlib       Ningaui library files are placed here. 
+                        
+           manuals     HTML man pages are placed here  when  mk  manpages  is 
+                       executed. 
+           
+      
+      
+     Ng_build.ksh  also  creates an environment setup script fragment file in 
+     build_setup.$USER in the $TMP directory (see -t). This  file  should  be 
+     sourced  into  the  environment  before  running  any  mk  commands.  If 
+     ng_build.ksh is used  to  compile  the  source  after  establishing  the 
+     environment, it is not necessary to source the file. 
+      
+      
+     Building Packages 
+     After  the software is built, even if not installed outside of the build 
+     environment, it is possible to create ningaui packages. To do  this  the 
+     environmental  setup  file  MUST be sourced in, and then the ng_sm_mkpkg 
+     command can be executed. The ng_sm_mkpkg command  will  create  packages 
+     for  the  components  named  on  the  command line which can be sent and 
+     installed on other ningaui hosts. 
+  
+  
+  OPTIONS 
+
+      
+     The following command line options are available: 
+           
+           -a          Build all. In addition to creating the environment the 
+                       script  will build the software. If this option is not 
+                       supplied, the build environment is intialised and  the 
+                       user  must  follow  the  instructions  written  to the 
+                       standard error device to compile the software. 
+                        
+           -c host     Supplied the name of the CVS host to fetch a  copy  of 
+                       the  software  from.  This  option implies -f and will 
+                       force a fetch of the source even if it exists  in  the 
+                       current directory. 
+                        
+           -D dir      Causes  the  script to use dir as the build directory. 
+                       When  omitted  from  the  command  line,  the  current 
+                       directory is used. 
+                        
+           -d dir      Supplies the directory within the CVS environment (cvs 
+                       root) to use when fetching source.  If  not  supplied, 
+                       /cvsroot is assumed. 
+                        
+           -f          Force  a  source  fetch  from  CVS.  This  script only 
+                       fetches the source if the source appears not to reside 
+                       in  the  current  working  directory (or the directory 
+                       supplied with the -D option). 
+                        
+           -h          Displays a short help message, and  build  instuctions 
+                       if  the  environment  has  already  been setup by this 
+                       script. 
+                        
+           -i dir      Assumes package files (pkg-*)  exist  in  the  current 
+                       directory.  These  packages are installed into the dir 
+                       named after the option. If this option  is  used,  all 
+                       other options and actions are ignored. 
+                        
+           -k          Keep temporary files. 
+                        
+           -R dir      Supplies  the  directory  used  as  NG_ROOT during the 
+                       build process. If not supplied the directory  bld_root 
+                       is  created in the build directory. It is necessary to 
+                       supply this directory only if the software  is  to  be 
+                       installed   directly   (say  into  /usr/local/ningaui) 
+                       rather than  build  with  the  intension  of  creating 
+                       packages. 
+                        
+           -s path     Supplies  the  full  path of the Korn shell (including 
+                       the /ksh). This string is used in all  #!  lines  when 
+                       .ksh  script are installed. If this is not supplied, a 
+                       search for kshell is made and the first one  found  is 
+                       used. The search order is: 
+                        
+                             
+                            * /usr/common/ast/bin 
+                            * /usr/local/bin 
+                            * /usr/bin 
+                            * /bin 
+                        
+                        
+           -t dir      Uses  dir  as  a  temporary directory. If not supplied 
+                       ng_build.ksh   will   use   /ningaui/tmp  or  /tmp  if 
+                       /ningaui/tmp does not exist. 
+                        
+           -v          Verbose mode. 
+           
+      
+      
+  
+  
+  EXIT 
+
+      
+     Any non-zerio return code indicates an error. 
+      
+  
+  
+  SEE ALSO 
+
+      
+     ng_sm_build, ng_sm_mkpkg 
+      
+  
+  
+  MODIFICATIONS 
+
+      
+     Code is currently maintained by: Scott Daniels 
+      
+     16 Feb 2006 (sd)    Sunrise. 
+     18 Aug 2006 (sd)    Some changes to support release of software. 
+     30 Aug 2006 (sd)    Added man page. 
+     09 Oct 2006 (sd)    Added -p option to build packages with -a. 
+     29 Mar 2007 (sd)    Fixed the cartulary that is created by this. 
+     20 Apr 2007 (sd)    Now pulls fingerprint stuff into .bin. 
+     27 Jun 2007 (sd)    This now sets CVS_RSH if not set; we assume ssh. 
+     26 Nov 2007 (sd)    Added   an  install  option  to  make  installation 
+                         easier. 
+     28 Jan 2008 (sd)    Ensures that Kshell is in the path. 
+     09 Mar 2009 (sd)    Added some checking for make in the path and usable 
+                         version of gawk/awk. 
+     05 Jun 2009 (sd)    Now  use  the existing value of NG_INSTALL_KSH_PATH 
+                         if set -- so  we  can  use  this  script  to  build 
+                         generic binaries for the release site. 
+     30 Jul 2009 (sd)    Added  a  bit  to  the  usage  message  on  trouble 
+                         shooting. 
+      
+  
+  
+ _______________________________________________________________________________
+ Printed 22 October 2009 | XFM with scd_start v1.2/01258 

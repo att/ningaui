@@ -1,0 +1,294 @@
+      
+
+
+ NINGAUI SOURCE RELEASE 
+
+
+     This   directory  contains  the  official  release  of  Ningaui  source, 
+     documentation, and possibly other things. If you  are  interested  in  a 
+     quick start, see the last section of this document. 
+
+
+ Hardware and Operating System 
+
+     Ningaui  clusters  have been created using a mix of various hardware and 
+     operating  system  flavours.  The  hardware  platforms  that  have  been 
+     successfully  used  include: x86 (32 and 64 bit) style processors, Power 
+     PC, Sun SPARC, and SGI. 
+      
+     Ningaui  software  has  been  built  and  used  successfully  under  the 
+     following operating systems: 
+      
+           
+          * FreeBSD 4.x, 5.x and 6.x 
+          * Linux 2.x (RedHat and SuSe, YellowDog) 
+          * Darwin 7.x and 8.x (Mac OSX) 
+          * Irix 6.x (SGI) 
+          * SunOS 5.x 
+      
+
+
+ Software Requirements 
+
+     The  following  software  tools are assumed to be installed on a Ningaui 
+     node: 
+      
+           
+          * Gnu awk (gawk) v3.1.1 
+          * Ruby 1.8 or later 
+          * AT&T Korn shell (ksh93) Version r or later. 
+          * AT&T AST pax (2005-12-14 or later) 
+      
+      
+     During node startup, Ningaui software locates each of  these  tools  and 
+     sets  symbolic links in $NG_ROOT/common, and $NG_ROOT/common is included 
+     in the PATH. Warnings are issued if they are not found  where  expected. 
+     If  one  of these software components is not installed, Ningaui software 
+     behaviour might not be as is desired, though on the  surface  everything 
+     might appear to be operating without problems. 
+
+
+ Release Contents 
+
+     The  following  is  a  brief  description  of  the directories and files 
+     contained here: 
+      
+     contrib   Contains source for libraries and/or tools that were  written 
+               independently  of  the  ningaui  project. The ningaui project 
+               depends on these tools. 
+                
+     doc       Ningaui documentation is contained within  subdirectories  of 
+               this  directory. The manuals subdirectory contains the user's 
+               guide,   programmer's   guide   and   an   installation   and 
+               administration  manual.  Most documents are supplied in HTML, 
+               Postscript, PDF, and plain  ASCII  formats.  (Note  that  the 
+               plain  ASCII  text versions do not completely support some of 
+               the table formatting used in the documentation. Best to  view 
+               the  documents  using  one  of  the  other  formats; ASCII is 
+               supplied for use in a pinch.) 
+                
+     mkfile    Mkfile that can be used to build the source. 
+                
+     ng_build.ksh   
+               A   Kshell   script   that  is  used  to  prepare  the  build 
+               environment,  and  to  optionally take the necessary steps to 
+               compile all of the contrib and potoroo software. 
+                
+     panoptic.mk   
+               A global mkfile that  is  included  by  all  mkfiles  in  the 
+               ningaui source tree. 
+                
+     panoptic.ksh   
+               A  Kshell  script  that  is  invoked  by  panoptic.mk to help 
+               establish the build environment. 
+                
+     potoroo   The base set of software for project Ningaui. 
+      
+
+
+ Build Generated Directories/Files 
+
+     During the build process, several directories and files are  created  in 
+     this  upper  directory.  This  is  a  list  of the ones that might be of 
+     interest: 
+     stlib     Directory that will contain  Ningaui  and  contrib  libraries 
+               after the source has been 'precompiled.' 
+                
+     include   Header files for libraries. 
+                
+     .bin      Tools that are used during the build processes. 
+                
+     bld_root  A temporary NG_ROOT directory created if the -r option is not 
+               supplied to ng_build.ksh 
+                
+     manuals   Target directory  for  HTML  and  text  man  pages  that  are 
+               generated  during  the  build  process.  The  man  pages  are 
+               contained in the subdirectories html and text. 
+                
+     build_log This file is created by the ng_build.ksh  script  if  the  -a 
+               (build everything) option is given. 
+      
+
+
+ Making Ningaui 
+
+     Building  Ningaui consists of compiling the source into binaries for the 
+     target machine, and then bundling sciripts, binaries, and  other  needed 
+     files into "packages" which can be distributed and installed on machines 
+     with like hardware and operating system. Before executing the build, you 
+     must  ensure  that  the  korn shell (ksh) is available in one of several 
+     common locations, or that the path to Kshell is provided to  the  script 
+     using  the  -s option. If the -s option is not used, these locations are 
+     searched for an executable copy of Kshell: 
+      
+     * /usr/common/ast/bin 
+     * /usr/local/bin 
+     * /usr/bin 
+     * /bin 
+      
+     The public domain version of  Kshsll  (pd-ksh)  is  often  installed  by 
+     default  on various UNIX systems and that version is NOT compatable with 
+     Ningaui software. 
+      
+     To build Ningaui,  and  create  the  potoroo  and  contrib  distribution 
+     packates, execute the command: 
+      
+     ng_build.ksh -v -a [-p] 
+      
+     The build consists of several steps 
+      
+     Build mk  Ningaui needs mk; this step builds it. 
+                
+     Precompile   
+               Setup and compiles libraries; populates ./stlib. 
+                
+     mk all    Builds Ningaui binaries. 
+                
+     Install   Installs  Ningaui  into  a directory within the current build 
+               directory (this is not a system install). 
+                
+     Generate Man Pages   
+               The   ningaui  manual  pages  are  created  and  placed  into 
+               ./manuals/html   and   ./manuals/text.  Ningaui  scripts  and 
+               binaries carry their manual page 'on board' and use their  on 
+               board  copy  when  the '--man' option is given on the command 
+               line. These directories provide a  reference  set  of  manual 
+               pages  that  can  be accessed via HTTPd or editor without the 
+               need to have ningaui software installed. 
+                
+     Generate Packages   
+               This step creates the 'binary packages' for the  potoroo  and 
+               contrib  software,  provided  that the -p option was given on 
+               the command line. These packages are simple  tar  files  that 
+               can  be uncompressed and extracted on any target cluster node 
+               of the same type and O/S flavour used to compile the package. 
+      
+      
+     If you specify the all option (-a), then you  may  specify  the  package 
+     option  (-p).  This  option  will  create the package tar files that can 
+     easily be used to install Ningaui on other hosts. 
+      
+     If you wish  to  build  the  ningaui  software  manually,  then  execute 
+     ng_build.ksh  without  the  all option to setup the various directories. 
+     Once the  directory  tree  has  been  properly  established,  a  set  of 
+     instructions  will  be  written  to  the  standard  error  device. These 
+     instructions list the steps necessary to build the ningaui software. 
+
+
+ Mk vs. Make 
+     The ningaui software is built using the mk tool  from  Plan9.  Mk  is  a 
+     make-like  tool  used  to  maintain  dependances  between  files  and to 
+     properly build and/or install files when they are 'out  of  date.'  More 
+     information about mk can be found via this URL: 
+     http://cm.bell-labs.com/sys/doc/mk.html 
+     [LINK: http://cm.bell-labs.com/sys/doc/mk.html] 
+      
+     Because  ningaui  uses mk to build things, mk must first be compiled and 
+     installed. This is the first task undertaken by  ng_build.ksh  when  run 
+     with  the  build  all  option.  The  mk binary is placed into the ./.bin 
+     directory where it can be referenced by the rest of the build process. 
+      
+     When using ng_build.ksh to compile everything, there is no need to worry 
+     about   making   the   mk  programme.  However,  if  manually  compiling 
+     everything, it will be necessary to switch to the contrib directory, and 
+     then to execute the ng_build.ksh script which builds mk. 
+      
+     In  general the tools in the contrib directory are used 'as is;' we have 
+     included them in accordance  with  any  'right  to  use  and  distribute 
+     license'  that they contain, and have made little or no changes to their 
+     source. This includes not converting their  build  management  (make  or 
+     gmake)  files to mk In most cases we have created a mkfile which acts as 
+     a wrapper and invokes make or gmake in order to  build  the  contributed 
+     tool(s).  It  is for this reason that ningaui does require that gmake be 
+     installed on the build host. 
+      
+
+
+ Other Build Support Tools 
+     In addition to mk, the ningaui build process relies on the tfm  and  hfm 
+     tools in the Xfm text formatting suite; a part of the contrib directory. 
+     After mk is compiled, the Xfm  suite  of  programmes  are  compiled  and 
+     installed in ./bin. 
+
+
+ The Remainder of Contrib 
+     The  remainder of the tools contained in the contrib directory are tools 
+     and libraries that are needed by ningaui  programmes  and  scripts.  The 
+     libraries are compiled and placed into ./stdlib 
+
+
+ Manual Pages 
+
+     Ningaui   software   implements   manual   pages   as   'self  contained 
+     documentation.' Supplying the --man option on the command  line  of  any 
+     Ningaui  tool  will  result  in  the  manual  page  being  formatted and 
+     displayed on the standard  output  device.  The  output  text  is  piped 
+     through  the  pager  application  listed by PAGER in the environment, or 
+     through more if PAGER is not defined. 
+      
+     The main theory behind SCD is that the manpage is maintained as  a  part 
+     of  the  source  code  (easily  found  at  the  bottom of each script or 
+     programme), ensuring that the manual page  displayed  matches  the  tool 
+     being  executed. Another benefit of SCD is that when changes are made to 
+     the source, it is easier to update the documentation  because  a  second 
+     file does not need to be edited. 
+      
+     The  markup language that the manual pages are written in (XFM) can also 
+     produce HTML output allowing a set of Ningaui manual pages  to  be  made 
+     available from any httpd environment. To make the HTML manual pages, the 
+     command mk manpages needs to be executed in the top level directory. The 
+     HTML  files generated are placed into the manuals directory and then can 
+     be moved to the desired httpd directory tree. 
+
+
+ INSTALLATION 
+
+
+     Ningaui must be installed into a directory referred to  a  the  'ningaui 
+     root,'  and  referenced  by the environment variable NG_ROOT. Generally, 
+     the ningaui root is /ningaui,  though  it  can  be  anything.  Once  the 
+     ningaui root is created, the packages generated during the build process 
+     can be installed with the command: 
+      
+       ksh ng_build.ksh -v -i $NG_ROOT
+      
+     This command will take the packages in the current directory and install 
+     them into the ningaui root directory. 
+      
+     The  package  files  are  simple tar files and can be extracted into the 
+     desired location manually, or the contents of the bld_root directory can 
+     be  copied  to  a desired location if using the automated process is not 
+     desired. 
+      
+     Once the software is installed, the node must be  configured  before  it 
+     can  join  the  cluster.  Please  refer  to the Ningaui Installation and 
+     Administration documentation (see doc/manuals) for  details  on  how  to 
+     properly set up a node and/or cluster for ningaui. 
+
+
+ QUICK START 
+
+
+     Don't  like  reading  the instructions? To build the ningaui software in 
+     this directory, and  to  install  it  in  a  subdirectory  beneath  this 
+     directory (bld_root), the following command can be executed: 
+      
+        ng_build.ksh -v -a [-p]
+      
+     Some  verbose messages will appear on the standard error device, and the 
+     compile output will be written to build_log in the current directory. If 
+     the  build  is  successful,  then ./bld_root/bin will have the binaries, 
+     ./bld_root/lib will have some needed support files. Set the  environment 
+     variable  NG_ROOT  to reference $PWD/bld_root and you are all set to use 
+     the ningaui tools (you might want to read the manual about how to  start 
+     them on the node!) 
+      
+     Install  the  packages  created by the previous command (assuming -p was 
+     used) with the following command: 
+      
+       ksh ng_build.ksh -v -i $NG_ROOT
+      
+     The software must be setup (configured) before the  node  can  join  the 
+     cluster. The details on how to set up a node, or the cluster, are in the 
+     Ningaui Installation and Administration documentation. 
+     ________________________________________________________________________

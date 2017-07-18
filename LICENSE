@@ -1,0 +1,30 @@
+
+Unless otherwise specfied in a source module, the following license applies:
+
+/*
+* ======================================================================== v1.0/0a157
+*
+*       This software is part of the AT&T Ningaui distribution
+*
+*       Copyright (c) 2001-2009 by AT&T Intellectual Property. All rights reserved
+*   	AT&T and the AT&T logo are trademarks of AT&T Intellectual Property.
+*
+*       Ningaui software is licensed under the Common Public
+*       License, Version 1.0  by AT&T Intellectual Property.
+*
+*       A copy of the License is available at
+*       http://www.opensource.org/licenses/cpl1.0.txt
+*
+*       Information and Software Systems Research
+*       AT&T Labs
+*       Florham Park, NJ
+*
+*
+*
+* ======================================================================== 0a229
+*/
+
+
+Any opensource code which was reused by Ningaui has been done so within the terms of
+the original license. These license(s) are included with the code where it was 
+reused, and in any other form which is stipulated by the individual license.
