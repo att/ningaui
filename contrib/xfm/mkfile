@@ -1,0 +1,65 @@
+# 
+# This mkfile is a wrapper that allows us to leave the stuff that 
+# XFM provides alone.
+
+## must be set in EVERY mkfile AND in master.mk -- erk.
+MKSHELL = `echo ${GLMK_SHELL:-ksh}`
+
+# these must be set before master is pulled in
+#
+ALL = 
+INSTALL =
+SCDSRC = 
+LIB_INSTALL =
+CLASS_INSTALL = 
+ROOT_INSTALL = 
+EXPORT = mkfile
+
+gflag = -g
+
+IFLAGS = -I. -I ../lib -I ../rfm
+
+PKG_ROOT = `echo ${PKG_ROOT:-$NG_ROOT}`
+PKG_LIB = $PKG_ROOT/lib
+PKG_BIN = $PKG_ROOT/bin
+
+# build and then install in the source .bin directory for other compiles to use
+precompile:V: allxfm 
+	set -x
+	(cd include; mk precompile)
+	cp rfm/rfm $NG_SRC/.bin/rfm
+	cp hfm/hfm $NG_SRC/.bin/hfm
+	cp pfm/pfm $NG_SRC/.bin/pfm
+	cp tfm/tfm $NG_SRC/.bin/tfm
+
+install:V:	allxfm
+	(cd include; mk install)
+	cp rfm/rfm $PKG_ROOT/bin/rfm
+	cp hfm/hfm $PKG_ROOT/bin/hfm
+	cp pfm/pfm $PKG_ROOT/bin/pfm
+	cp tfm/tfm $PKG_ROOT/bin/tfm
+	ls -al $PKG_ROOT/bin/*fm
+
+
+nuke:V:
+	( cd afileio; mk nuke )
+	( cd lib; mk nuke )
+	( cd rfm; mk nuke )
+	( cd hfm; mk nuke )
+	( cd pfm; mk nuke )
+	( cd tfm; mk nuke ) 
+
+allxfm:V:
+	echo "afileio"
+	( cd afileio; mk )
+	echo "lib"
+	( cd lib; mk )
+	echo "rfm"
+	( cd rfm; mk )
+	echo "hfm"
+	( cd hfm; mk )
+	echo "pfm"
+	( cd pfm; mk )
+	echo "tfm"
+	( cd tfm; mk ) 
+

@@ -1,0 +1,6 @@
+
+This version of {X}fm is included as it was a part of the original
+Ningaui opensource release, but has not been maintained.  It will 
+still support the Ningaui code, however {X}fm is maintained in a
+separate github repository and should be pulled, built and installed
+from there if at all possible. 

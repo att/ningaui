@@ -1,0 +1,70 @@
+#
+# ---------------------------------------------------------------------------
+# This source code is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# If this code is modified and/or redistributed, please retain this
+# header, as well as any other 'flower-box' headers, that are
+# contained in the code in order to give credit where credit is due.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# Please use this URL to review the GNU General Public License:
+# http://www.gnu.org/licenses/gpl.txt
+# ---------------------------------------------------------------------------
+#
+# rfm -- read xfm source and generate rich text output 
+#
+
+# must be set in EVERY mkfile AND in master.mk -- erk.
+MKSHELL = ksh		
+
+# these must be set before master is pulled in
+#
+ALL = rfm
+INSTALL =
+SCDSRC = 
+
+
+
+< ../master.mk
+NUKE = $NUKE rfm
+
+
+IFLAGS = -I. -I ../lib
+
+rfmlib = librfm$gflag.a
+
+libraries:N: $rfmlib
+
+libs = -L../afileio -lafi${gflag:-} -L../lib -lut${gflag:-}
+
+# source for the lib
+src = fmaddtok fmasis fmbd fmbeglst fmbox fmbxend fmbxst fmccol fmcd fmceject fmcenter \
+	fmclose fmcmd fmcpage fmdefhea fmditem fmdo fmdummy fmdump fmdv fmelse \
+	fmendlis fmendta fmep fmevalex fmfigure fmflush fmformat fmgetpar fmgetpts fmgettok \
+	fmgetval fmheader fmhn fmif fmignore fmimbed fmindent fminit fmjump fmjustif \
+	fmline fmlisti fmll fmmain fmmsg fmnofmt fmopen fmpara fmpflush fmpgnum  \
+	fmread fmrfoot fmrhead fmright fmrow fmrunout fmrunset fmsectio fmsetcol \
+	fmsetfon fmsetjus fmsetmar fmsetstr fmsetx fmsety fmshowvars fmskip fmspace fmtable \
+	fmtc fmtmpy fmtoc fmtoksiz fmtopmar fmvartok fmcomma fmindex fmcapture fmrun
+
+
+$rfmlib(%.o):N:    %.o
+$rfmlib:   ${src:%=$rfmlib(%.o)}
+	ksh '(
+	set -e
+	names="${newprereq//$rfmlib\(}"					# pluck off lib.*( from each in newprereq
+	ar r $rfmlib ${names//\)/} && rm ${names//\)/}	# archive and remove after ditching trailing ) from each name
+	ranlib $rfmlib || true
+	)'
+
+rfm:	libraries fmmain.c
+	$CC $CFLAGS $IFLAGS -o rfm fmmain.c $rfmlib $libs 
+
+test2 :: test2.c -lafi -lut

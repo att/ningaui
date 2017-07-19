@@ -1,0 +1,72 @@
+#
+# ---------------------------------------------------------------------------
+# This source code is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# If this code is modified and/or redistributed, please retain this
+# header, as well as any other 'flower-box' headers, that are
+# contained in the code in order to give credit where credit is due.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# Please use this URL to review the GNU General Public License:
+# http://www.gnu.org/licenses/gpl.txt
+# ---------------------------------------------------------------------------
+#
+# Alt File I/O routines 
+# Mods:
+# 	25 Apr 2001 - Converted for gnu make (sucks) (BSD)
+#		gnu vars: $?=all dependancies $@ = target  
+# 	01 Nov 2001 - ported to nmake for ningaui
+# 	20 Jul 2005 :  converted to mk   
+#
+
+# must be set in EVERY mkfile AND in master.mk -- erk.
+MKSHELL = ksh		
+
+# these must be set before master is pulled in
+#
+MKSHELL=ksh
+ALL = libraries
+INSTALL =
+SCDSRC = 
+
+
+< ../master.mk
+
+
+IFLAGS = -I. -I ../lib
+
+afilib = libafi$gflag.a
+
+libraries:N: $afilib
+
+afilib = libafi$gflag.a
+#/* libraries used to link test programs */
+libs = -L./ -lafi -L../tools -lut
+headers = afisetup.h aficonst.h afidefs.h afistruc.h
+
+# source for the lib
+src = afichain aficlos1 aficlose afiopen afiopenp afiread afiseek afisetfl afisetsi afistat \
+	afiwrite afigetto afiisvar afinew afireadp afiopenp  afipusht afisetto replace
+
+$afilib(%.o):N:    %.o
+$afilib:   ${src:%=$afilib(%.o)}
+	ksh '(
+	set -e
+	names="${newprereq//$afilib\(}"					# pluck off lib.*( from each in newprereq
+	ar r $afilib ${names//\)/} && rm ${names//\)/}	# archive and remove after ditching trailing ) from each name
+	ranlib $afilib || true
+	)'
+
+publish:V: $afilib
+	cp *.a ../lib
+
+
+test2 :: test2.c -lafi -lut
+

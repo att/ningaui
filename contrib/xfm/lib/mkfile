@@ -1,0 +1,61 @@
+#
+# ---------------------------------------------------------------------------
+# This source code is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# If this code is modified and/or redistributed, please retain this
+# header, as well as any other 'flower-box' headers, that are
+# contained in the code in order to give credit where credit is due.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# Please use this URL to review the GNU General Public License:
+# http://www.gnu.org/licenses/gpl.txt
+# ---------------------------------------------------------------------------
+#
+# Mods:
+#
+
+# must be set in EVERY mkfile AND in panoptic.mk -- erk.
+MKSHELL = ksh		
+
+# these must be set before panoptic is pulled in
+#
+ALL = libraries
+
+< ../master.mk
+
+#IFLAGS = -I. 
+
+utlib = libut$gflag.a
+sfioe = libsfioe.a
+imagelib = libutimage.a
+
+
+libraries:N:	$utlib #$sfioe 
+
+utsrc = utformat utmdy uttimes utrotate time symtab docindex utmalloc 
+$utlib(%.o):N:    %.o
+$utlib:   ${utsrc:%=$utlib(%.o)} 
+	ksh '(
+	set -e
+	names="${newprereq//$utlib\(}"					# pluck off lib.*( from each in newprereq
+	ar r $utlib ${names//\)/} && rm ${names//\)/}	# archive and remove after ditching trailing ) from each name
+	ranlib $utlib ||true
+	)'
+
+sfioe_src = sfio_emulation
+$sfioe(%.o):N: %.o
+$sfioe:	${sfioe_src:%=$sfioe(%.o})
+	ksh '(
+	set -e
+	names="${newprereq//$sfioe\(}"					# pluck off lib.*( from each in newprereq
+	ar r $sfioe ${names//\)/} && rm ${names//\)/}	# archive and remove after ditching trailing ) from each name
+	ranlib $sfioe ||true
+	)'
+
