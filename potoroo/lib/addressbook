@@ -1,0 +1,6 @@
+# this is a nick-name to email address mapping used by ng_mailer
+# it also supports mailing lists
+# format of entries is either
+#	nickname user@domain
+#	+ list-name nickname nickname nickname ....
+
