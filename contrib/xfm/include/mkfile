@@ -1,0 +1,35 @@
+# include -- these are imbed files (.im) that are used to 
+# support self contained documentation in ningaui/gecko code
+#
+
+# must be set in EVERY mkfile AND in master.mk -- erk.
+MKSHELL = `echo ${GLMK_SHELL:-ksh}`
+
+# these must be set before master is pulled in
+#
+ALL = 
+INSTALL =
+LIB_INSTALL = hfmstart.im scd_start.im startup.im tfmstart.im pfmstart.im
+SCDSRC = 
+
+gflag = 
+
+< ../master.mk
+
+NUKE = $NUKE $ALL
+PKG_LIB= `echo ${PKG_LIB:-$NG_ROOT/lib}`
+
+# install in the source/include directory
+precompile:V:
+	set -x
+	for x in $LIB_INSTALL
+	do
+		cp $x $NG_SRC/include/
+	done
+
+install:V:
+	for x in $LIB_INSTALL
+	do
+		cp $x $PKG_LIB/
+	done
+
