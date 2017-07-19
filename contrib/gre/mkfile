@@ -1,0 +1,35 @@
+# mkfile 27 Jun 2005
+
+INSTALL = gre
+ALL = gre
+
+GLMK_NOSOURCES = 1
+<$NG_SRC/panoptic.mk
+NUKE = $NUKE $ALL
+
+# we need to eliinate anything that panoptic puts on that might reference nglib etc.
+CFLAGS = $CFLAGS -DMEMMOVE -DUSE_STDIO
+IFLAGS = -I. 
+LFLAGS = 
+
+verify:
+	printf -- " $CFLAGS"
+
+
+# contrib things must NOT reference ningaui lib things!
+#lib_needs = $libng
+#lib_depends = ${lib_needs:%=$NG_SRC/stlib/lib%.a}       # full paths for the dependancy list
+#lib_ref = -L$NG_SRC/stlib ${lib_needs:%=-l%} -L $AST/lib -last           # references for (g)cc command
+#lib_ref = -L$AST/lib -last           			# references for (g)cc command
+
+
+gre::		main.c dofgrep.o dogre.o fns.o buffer.o cw.o bm.o eg.o egcomp.o eglit.o egpos.o egstate.o egcw.o egbr.o egmatch.o egcanon.o 
+	$CC $IFLAGS $CFLAGS -o $target $prereq 	# $lib_ref $last_ref
+
+retest::	retest.c eg.o egcomp.o eglit.o egpos.o egstate.o egcanon.o egcw.o egbr.o egmatch.o re.c cw.o
+	$CC $IFLAGS $CFLAGS -o $target $prereq $lib_ref $last_ref
+
+regress:
+	rm -f buffer.o; nmake -K CMD_CCFLAGS="-DBUFSIZE=500" gre retest
+	cd regress.d; make GRE=../gre RETEST=../retest
+	rm -f buffer.o gre retest

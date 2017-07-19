@@ -1,0 +1,16 @@
+#
+
+liblist=check.rb lex.rb parse.rb route.rb vrml.rb world.rb
+
+INSTALL = fettle m2
+LIB_INSTALL = $liblist
+ALL = 
+
+GLMK_NOSOURCES = 1
+
+<$NG_SRC/panoptic.mk
+NUKE = $NUKE $ALL
+
+regress:
+	# for now, just see if the rack defn compiles
+	m2 < rack.cve0 | fettle > temp

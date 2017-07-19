@@ -1,0 +1,307 @@
+object {
+	name "Dell1950"
+	dim [1r, 1.6i, 31i]
+	ports {
+		{ "power", [5i, 1i, -0], "120V" }
+		{ "eth0", [8i, 1i, -0], "Ethernet" }
+		{ "eth1", [9i, 1i, -0], "Ethernet" }
+		{ "fc", [-5i, 1i, -0], "FC" }
+		{ "kvm", [-4i, 1i, -0], "KVM" }
+	}
+}
+
+object {
+	name "DSR2035"
+	desc "Avocent DSR2035 32 port KVM switch"
+	dim [1r, 1.6i, 14i]
+	ports {
+		{ "power", [-1i, 1i, -0], "120V" }
+		{ "lan1", [-2i, 1i, -0], "Ethernet" }
+		{ "lan2", [-3i, 1i, -0], "Ethernet" sink }
+		{ "p01", [10i, 1.2i, -0], "KVM" sink }
+		{ "p02", [10i, 0.6i, -0], "KVM" sink }
+		{ "p03", [9.4i, 1.2i, -0], "KVM" sink }
+		{ "p04", [9.4i, 0.6i, -0], "KVM" sink }
+		{ "p05", [8.8i, 1.2i, -0], "KVM" sink }
+		{ "p06", [8.8i, 0.6i, -0], "KVM" sink }
+		{ "p07", [8.2i, 1.2i, -0], "KVM" sink }
+		{ "p08", [8.2i, 0.6i, -0], "KVM" sink }
+		{ "p09", [7.6i, 1.2i, -0], "KVM" sink }
+		{ "p10", [7.6i, 0.6i, -0], "KVM" sink }
+		{ "p11", [7i, 1.2i, -0], "KVM" sink }
+		{ "p12", [7i, 0.6i, -0], "KVM" sink }
+		{ "p13", [6.4i, 1.2i, -0], "KVM" sink }
+		{ "p14", [6.4i, 0.6i, -0], "KVM" sink }
+		{ "p15", [5.8i, 1.2i, -0], "KVM" sink }
+		{ "p16", [5.8i, 0.6i, -0], "KVM" sink }
+		{ "p17", [5.2i, 1.2i, -0], "KVM" sink }
+		{ "p18", [5.2i, 0.6i, -0], "KVM" sink }
+		{ "p19", [4.6i, 1.2i, -0], "KVM" sink }
+		{ "p20", [4.6i, 0.6i, -0], "KVM" sink }
+		{ "p21", [4i, 1.2i, -0], "KVM" sink }
+		{ "p22", [4i, 0.6i, -0], "KVM" sink }
+		{ "p23", [3.4i, 1.2i, -0], "KVM" sink }
+		{ "p24", [3.4i, 0.6i, -0], "KVM" sink }
+		{ "p25", [2.8i, 1.2i, -0], "KVM" sink }
+		{ "p26", [2.8i, 0.6i, -0], "KVM" sink }
+		{ "p27", [2.2i, 1.2i, -0], "KVM" sink }
+		{ "p28", [2.2i, 0.6i, -0], "KVM" sink }
+		{ "p29", [1.6i, 1.2i, -0], "KVM" sink }
+		{ "p30", [1.6i, 0.6i, -0], "KVM" sink }
+		{ "p31", [1i, 1.2i, -0], "KVM" sink }
+		{ "p32", [1i, 0.6i, -0], "KVM" sink }
+	}
+}
+
+object {
+	name "Dell5324"
+	desc "Powerconnect 5324 24 10/100/1000 port switch"
+	dim [1r, 1.6i, 10i]
+	ports {
+		{ "power", [2i, 1i, -0], "120V" }
+		{ "p01", [4i, 1.2i, 0], "Ethernet" sink }
+		{ "p02", [4i, 0.4i, 0], "Ethernet" sink }
+		{ "p03", [4.7i, 1.2i, 0], "Ethernet" sink }
+		{ "p04", [4.7i, 0.4i, 0], "Ethernet" sink }
+		{ "p05", [5.4i, 1.2i, 0], "Ethernet" sink }
+		{ "p06", [5.4i, 0.4i, 0], "Ethernet" sink }
+		{ "p07", [6i, 1.2i, 0], "Ethernet" sink }
+		{ "p08", [6i, 0.4i, 0], "Ethernet" sink }
+		{ "p09", [6.7i, 1.2i, 0], "Ethernet" sink }
+		{ "p10", [6.7i, 0.4i, 0], "Ethernet" sink }
+		{ "p11", [7.4i, 1.2i, 0], "Ethernet" sink }
+		{ "p12", [7.4i, 0.4i, 0], "Ethernet" sink }
+		{ "p13", [8i, 1.2i, 0], "Ethernet" sink }
+		{ "p14", [8i, 0.4i, 0], "Ethernet" sink }
+		{ "p15", [8.7i, 1.2i, 0], "Ethernet" sink }
+		{ "p16", [8.7i, 0.4i, 0], "Ethernet" sink }
+		{ "p17", [9.4i, 1.2i, 0], "Ethernet" sink }
+		{ "p18", [9.4i, 0.4i, 0], "Ethernet" sink }
+		{ "p19", [10i, 1.2i, 0], "Ethernet" sink }
+		{ "p20", [10i, 0.4i, 0], "Ethernet" sink }
+		{ "p21", [10.7i, 1.2i, 0], "Ethernet" sink }
+		{ "p22", [10.7i, 0.4i, 0], "Ethernet" sink }
+		{ "p23", [11.4i, 1.2i, 0], "Ethernet" sink }
+		{ "p24", [11.4i, 0.4i, 0], "Ethernet" sink }
+	}
+}
+
+object {
+	name "F4"
+	desc "Tornado F4"
+	dim [1r, 3u, 20i]
+	ports {
+		{ "power", [2i, 1i, -0], "120V" }
+	}
+}
+
+object {
+	name "F5"
+	desc "Tornado F5"
+	dim [1r, 6.9i, 20i]
+	ports {
+		{ "pw1", [5i, 1i, -0], "120V" }
+		{ "pw2", [11i, 1i, -0], "120V" }
+		{ "pw3", [16i, 1i, -0], "120V" }
+		{ "fc1", [10i, -1i, -0], "FC" }
+		{ "fc2", [9i, -1i, -0], "FC" }
+		{ "fc3", [10i, -2i, -0], "FC" }
+		{ "fc4", [9i, -2i, -0], "FC" }
+		{ "eth", [7i, -2i, -0], "Ethernet" }
+	}
+}
+
+object {
+	name "cs21v"
+	desc "servertech cs-21v"
+	dim [1u, 45i, 2.5i]
+	ports {
+		{ "pw01", [-0, 11i, 1i], "120V" sink }
+		{ "pw02", [-0, 12i, 1i], "120V" sink }
+		{ "pw03", [-0, 13i, 1i], "120V" sink }
+		{ "pw04", [-0, 14i, 1i], "120V" sink }
+		{ "pw05", [-0, 15i, 1i], "120V" sink }
+		{ "pw06", [-0, 16i, 1i], "120V" sink }
+		{ "pw07", [-0, 17i, 1i], "120V" sink }
+		{ "pw08", [-0, 18i, 1i], "120V" sink }
+		{ "pw09", [-0, 19i, 1i], "120V" sink }
+		{ "pw10", [-0, 20i, 1i], "120V" sink }
+		{ "pw11", [-0, 21i, 1i], "120V" sink }
+		{ "pw12", [-0, 22i, 1i], "120V" sink }
+		{ "pw13", [-0, 23i, 1i], "120V" sink }
+		{ "pw14", [-0, 24i, 1i], "120V" sink }
+		{ "pw15", [-0, 25i, 1i], "120V" sink }
+		{ "pw16", [-0, 26i, 1i], "120V" sink }
+		{ "pw17", [-0, 27i, 1i], "120V" sink }
+		{ "pw18", [-0, 28i, 1i], "120V" sink }
+		{ "pw19", [-0, 29i, 1i], "120V" sink }
+		{ "pw20", [-0, 30i, 1i], "120V" sink }
+		{ "pw21", [-0, 31i, 1i], "120V" sink }
+		{ "eth", [-0, 36i, 1i], "Ethernet" }
+	}
+}
+
+object {
+	name "cs24v"
+	desc "servertech cs-24v"
+	dim [1u, 65i, 2.5i]
+	ports {
+		{ "pw01", [-0, 15i, 1i], "120V" sink }
+		{ "pw02", [-0, 16i, 1i], "120V" sink }
+		{ "pw03", [-0, 17i, 1i], "120V" sink }
+		{ "pw04", [-0, 18i, 1i], "120V" sink }
+		{ "pw05", [-0, 22i, 1i], "120V" sink }
+		{ "pw06", [-0, 23i, 1i], "120V" sink }
+		{ "pw07", [-0, 24i, 1i], "120V" sink }
+		{ "pw08", [-0, 25i, 1i], "120V" sink }
+		{ "pw09", [-0, 26i, 1i], "120V" sink }
+		{ "pw10", [-0, 27i, 1i], "120V" sink }
+		{ "pw11", [-0, 28i, 1i], "120V" sink }
+		{ "pw12", [-0, 29i, 1i], "120V" sink }
+		{ "pw13", [-0, 33i, 1i], "120V" sink }
+		{ "pw14", [-0, 34i, 1i], "120V" sink }
+		{ "pw15", [-0, 35i, 1i], "120V" sink }
+		{ "pw16", [-0, 36i, 1i], "120V" sink }
+		{ "pw17", [-0, 37i, 1i], "120V" sink }
+		{ "pw18", [-0, 38i, 1i], "120V" sink }
+		{ "pw19", [-0, 39i, 1i], "120V" sink }
+		{ "pw20", [-0, 40i, 1i], "120V" sink }
+		{ "pw21", [-0, 44i, 1i], "120V" sink }
+		{ "pw22", [-0, 45i, 1i], "120V" sink }
+		{ "pw23", [-0, 46i, 1i], "120V" sink }
+		{ "pw24", [-0, 47i, 1i], "120V" sink }
+		{ "eth", [-0, 60i, 1i], "Ethernet" }
+	}
+}
+
+object {
+	name "fas2703u"
+	desc "NetApp FAS270 2 shelves"
+	dim [1r, 10.3i, 20i]
+	ports {
+		{ "pow1", [5i, -1.5i, -0], "120V" }
+		{ "pow2", [-2i, -1.5i, -0], "120V" }
+		{ "pow3", [5i, 3.5i, -0], "120V" }
+		{ "pow4", [-2i, 3.5i, -0], "120V" }
+		{ "eth0", [8i, 2i, -0], "Ethernet" }
+		{ "eth1", [9i, 2i, -0], "Ethernet" }
+	}
+}
+
+wiretype {
+	name "Power"
+	desc "120V AC power"
+	alias "120V"
+	vrml "Wire_power"
+}
+
+wiretype {
+	name "Filecopy"
+	desc "192.168 gigabit filecopy network"
+	alias "Ethernet"
+	vrml "Wire_file"
+}
+
+wiretype {
+	name "Control"
+	desc "general ethernet + Flatnet"
+	alias "Ethernet"
+	vrml "Wire_ctl"
+}
+
+wiretype {
+	name "Kvm"
+	desc "Ethernet cable attached to a KVM dongle"
+	alias "KVM"
+	vrml "Wire_kvm"
+}
+
+wiretype {
+	name "FC"
+	desc "4Gb Fiberchannel"
+	alias "FC"
+	vrml "Wire_fc"
+}
+
+rack {
+	name "Paramount40u42d"
+	dim [18i, 74i, 37.2i]
+	doors {
+		{ [-3i, -3i, -2i], [0.7i, 77i, 39i], "Rack_door" }	# left
+		{ [21.7i, -3i, -2i], [0.7i, 77i, 39i], "Rack_door" }	# right
+		{ [-3i, 74i, -2i], [25.4i, 0.7i, 39i], "Rack_door" }	# top
+	}
+	bars {
+		{ "vert_pow", [-1.6i, 0, 32i], [-1.6i, 75i, 32i], Power }
+		{ "rear_right1", [21i, 0, 35i], [21i, 75i, 35i] }
+		{ "rear_right2", [21i, 0, 33i], [21i, 75i, 33i] }
+	}
+	ports {
+		{ "access1", [8i, -0, -4i], "access" }
+		{ "access2", [13i, -0, -4i], "access" }
+		{ "access3", [-8i, -0, -4i], "access" }
+	}
+}
+
+vrml {
+	"DEF Box_default Appearance {"
+	"	material Material {"
+	"		diffuseColor 1 1 0"
+	"	}"
+	"}"
+	"DEF Wire_default Appearance {"
+	"	material Material {"
+	"		diffuseColor 1 1 1"
+	"	}"
+	"}"
+	"DEF Wire_power Appearance {"
+	"	material Material {"
+	"		diffuseColor 0 0 0"
+	"	}"
+	"}"
+	"DEF Wire_ctl Appearance {"
+	"	material Material {"
+	"		diffuseColor .5 .5 .5"
+	"	}"
+	"}"
+	"DEF Wire_kvm Appearance {"
+	"	material Material {"
+	"		diffuseColor .1 1 .1"
+	"	}"
+	"}"
+	"DEF Wire_file Appearance {"
+	"	material Material {"
+	"		diffuseColor .1 .1 1"
+	"	}"
+	"}"
+	"DEF Wire_fc Appearance {"
+	"	material Material {"
+	"		diffuseColor .3 .3 .6"
+	"	}"
+	"}"
+	"DEF Rack_door Appearance {"
+	"	material Material {"
+	"		diffuseColor 1 1 1"
+	"		transparency .6"
+	"	}"
+	"}"
+	"DEF Rack_bar Appearance {"
+	"	material Material {"
+	"		diffuseColor 1 .1 .1"
+	"		transparency .6"
+	"	}"
+	"}"
+	"DEF Text_app Appearance {"
+	"	material Material {"
+	"		diffuseColor 0 0 .3"
+	"		emissiveColor 0 0 .3"
+	"		ambientIntensity 1"
+	"	}"
+	"}"
+	"DEF Label_font FontStyle {"
+	"	size 0.75"
+	"	family \"SANS\""
+	"}"
+}
+
+
