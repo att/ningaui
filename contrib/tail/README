@@ -1,0 +1,38 @@
+5 October 2005
+
+We have taken the tail command from FreeBSD and ripped out all 
+of the forward function to implement our version of toc. It only 
+accepts -[n]n [file] as parms.  
+
+The reason we must do this is that forward.c depends on BSD kernel
+events and those dont exist under Linux, or Sun (And Ive not even 
+tried SGI).
+
+Its never easy.
+
+Then we get to solaris which seems to have no support for err() warn()
+family of functions.  So, Ive implemented a small set of dummies 
+that indicate an error and abort as is needed and let the user know
+that something bad happened, but because the system does not support
+the functions they will not know exactly what went wrong. 
+
+
+12/30/2005
+Seems that Irix has the same issues with err/warn funcitons.  Maybe its 
+just that they are old. Who knows, but we cope.
+
+----------------- original plan; aborted because Linux sucks -------------
+This is tail from the FreeBSD src tools. It is being used
+nearly unchanged and is included because the tail with Linux
+does not support the -r option that several of our tools
+require.  
+
+The tool is built with mk, but the original make file, 
+and other source files from */usr.bin/tail have been kept
+here for reference should we need it.
+
+Small modifications needed to make the tool compile under
+O/Ss other than FreeBSD:
+	1) The __FBSDID macro must be ifdeffed out if not 
+		compiling on FreeBSD
+

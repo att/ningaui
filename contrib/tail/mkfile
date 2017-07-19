@@ -1,0 +1,20 @@
+# 
+# Date: 05 Oct 2005
+
+INSTALL = tac
+ALL = tac
+
+GLMK_NOSOURCES = 1
+<$NG_SRC/panoptic.mk
+NUKE = $NUKE $ALL
+
+# we do NOT want to reference ast*.h files so trim the -I list to next to nothing
+IFLAGS = -I.
+
+#	tail does not compile on linux 
+tail::	forward.o reverse.o tail.o misc.o read.o
+	$CC $IFLAGS $CFLAGS -o $target $prereq $lib_ref
+
+# tail with the -r option as default (no forward ability at all) so that it works on linux too
+tac::	reverse.o tac.o misc.o read.o
+	$CC $IFLAGS $CFLAGS -o $target $prereq # $lib_ref
