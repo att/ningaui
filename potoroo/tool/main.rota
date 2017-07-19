@@ -1,0 +1,261 @@
+
+# ======================================================================== v1.0/0a157 
+#                                                         
+#       This software is part of the AT&T Ningaui distribution 
+#	
+#       Copyright (c) 2001-2009 by AT&T Intellectual Property. All rights reserved
+#	AT&T and the AT&T logo are trademarks of AT&T Intellectual Property.
+#	
+#       Ningaui software is licensed under the Common Public
+#       License, Version 1.0  by AT&T Intellectual Property.
+#                                                                      
+#       A copy of the License is available at    
+#       http://www.opensource.org/licenses/cpl1.0.txt             
+#                                                                      
+#       Information and Software Systems Research               
+#       AT&T Labs 
+#       Florham Park, NJ                            
+#	
+#	Send questions, comments via email to ningaui_support@research.att.com.
+#	
+#                                                                      
+# ======================================================================== 0a229
+
+
+# main rota (v3) config file
+# syntax for information in this file is:
+#	section header name
+#		ifattr [!]attribute command
+#		ifdow day-name[,day-name...] command
+#		ifdom date[,date...] command
+#		ifnoqueue woomera-resource  command
+#		command
+#		set {-|+}{x|v}			# any shell set command; -x most likely
+#		sync command			# run command synchronously
+#		prune_log [day] n log-name	# if day (Mon, Tue...) supplied, log pruned only on indicated day
+
+#	ifXXX tokens may be 'stacked' allowing for a command to be executed if both criteria are met. 
+#	e.g. this allows the command to run on Wednesday and Fridays if the node is a build node:
+#		ifdow Wed,Fri ifattr BuildNode ng_sm_autobuild -v
+
+#	All commands MUST be indented with at least one space or tab; section headers are NOT indented.
+
+#	With ng_rota version 3, the control file parser was rewritten in order to do away with 
+#	quoting issues when using the ifatter, ifdow, ifdom, and ifnoqueue conditional tokens.
+#	Now, redirection needs to be quoted only when the command is being executed via ng_woomera
+#	or via ng_wrapper.  Examples:
+
+#		ifdow Sun ifattr Filer dosomething args to dosomething >$NG_ROOT/site/log/something 2>&1
+#		ifdow Sun ifattr Filer ng_wreq "job : cmd dosomething args to dosomething >$NG_ROOT/site/log/something 2>&1"
+#		ifdow Sun ifattr Filer ng_wrapper "dosomething args to dosomething >$NG_ROOT/site/log/something 2>&1"
+
+#	If ng_wrapper is being used, making use of -o1 and -o2 or -O1 and O2 options is recommended over using
+#	command line redirection.
+
+#	ifattr causes the command to be executed if the node has the indicated attiribute. !attribute can be used.
+#	ifdow  causes the command to be executed if the current day of the week matches the day given
+#	ifdom  causes the command to execute if the current day of the month matches one of the days given
+#	ifnoqueue causes the command to be executed if there are no queued or running jobs in woomera that 
+#		consume the resource named.
+
+#	the internal prune_log rota function can also be invoked.  It will trim the named log to n lines. 
+#	the assumption is that the command writing to the log is not running (info loss if it is), and that the 
+#	log is in $NG_ROOT/site/log.  The prune commands are run synchronously, before any other tasks. The syntax is:
+#		prune_log [day] n logname
+#
+#	If day is supplied (Mon, Tue...) then the prune is attempted when the section is run only on that day of the week.
+
+#	The current working directory for prunelog, and for rota, is NG_ROOT/site, so a log specification on a 
+#	prune_log command of log/name is the same as simply log.  This allows for consistency inasmuch as commands
+#	listed in a rota file can be redirected with the same name (e.g.  >>log/name). 
+
+#	While the order that commands are executed is the order supplied in each section, and sections are executed
+#	in the order encountered in the control file, the order of control files cannot be predicted. Further, commands
+#	executed via woomera cannot be controlled.  All commands are executed asynchronously, so it must be assumed
+#	that all commands that rota starts will be executed concurrently.  If it is necessary for commands to wait
+#	on, or be dependant on the successful execution of, another command, then the commands, and any dependancy
+#	logic should be coded in a script and that script should be invoked via rota. 
+
+#	Rota does not make any attempt to ensure that previous executions of commands are not still running.
+#	If there is concern that a previously started command is still running, the commands should be executed
+#	via woomera with an appropriate resource, or the commands themselves should implement a gating mechanism
+#	to prevent concurrent executions.
+
+#	The ng_pp_build command is HARDCODED in rota, and will be run everytime rota is started without the test (-t) 
+#	and/or no-execute (-n) options. It should NOT be added to the control file.  The pp_build command builds 
+#	the cartulary, and is executed before any other commands are started.
+
+#
+#	supported section header namess are:
+#		everytime	- These commands executed everytime rota is executed
+#		hourly		- executed with the first execution of rota each hour
+#		even_hr		- executed at top of each even numbered hour
+#		twice_daily	- executed twice per day at 6am and 6pm.
+#		odd_hr		- executed at top of each odd numbered hour
+#		half [hour]	- executed at zero and thirty minutes past the hour, each hour
+#		quarter [hour]  - executed at zero, fifteen, thirty and fourtyfive minutes past each hour
+#		midnight	- executed at midnight
+#		earlyam		- executed about 3am each morning
+#		predawn		- executed about 5am each morning
+#		latemorn	- executed about 10am each morning
+#		noon		- executed at noon
+#		afternoon	- executed about 4pm each afternoon
+#		evening		- executed about 8pm
+#		night		- executed about 10pm
+#		threehourly	- executed every three hours starting at 1am
+#		fourhourly	- executed every four hours starting at 1am
+#		sixhourly	- executed every six hours starting at 1am
+
+#	When testing, a non-supported header can be added to a control file, and tested using the -t option to 
+#	rota. This prevents rota from executing the test secion during its normal opteraions, but allows the commands
+#	to be driven by rota to ensure that they will execute properly.  For example, the verify secion is included in 
+#	this control file and the command ng_rota -t verify will cause just that secion to be executed. 
+
+#	mods:	22 Jan 2005 (sd) : Converted log_comb calls to use wrapper from wreq so that stdout/err are captured
+#		10 Feb 2005 (sd) : Flist send now puts stdout/err to log in site/log
+#		01 Jun 2005 (sd) : Added build section to knock our builds out at 4am rather than 3am for those 
+#			who dont go to bed until 3:30!
+#		14 Jun 2005 (sd) : Realised that the old test build section was conflicting with the new 4am build.
+#			renamed it.
+#		16 Jun 2005 (sd) : Fixed bug with tmp cleanup on a satellite node.
+#		04 Jul 2005 (sd) : Added prune of log_frag log
+#		04 Aug 2005 (sd) : deleted two commands that are not in path: set_catalogue, ng_dmfdb
+#		21 Oct 2005 (sd) : yanked bo-peep call.
+#		13 Apr 2005 (sd) : Added manpage build.
+#		03 May 2006 (sd) : Ng_init extends its log now, so I added a prune command to midnight.
+#		24 May 2006 (sd) : Added doc for ifnoqueue, now running flist_send via noqueue.
+#		30 May 2006 (sd) : Fixed bug in pkg_inst submission via woomera
+#		19 Jul 2006 (sd) : Changed scheduling of pkg_inst to NOT use --detach option in wrapper. pkg_inst now 
+#			handles the restart issue by using the new restart option in ng_node which it can do in a detached
+#			manner to avoid issues.
+#		28 Jul 2006 (sd) : Added invocation of rm_dump_backup on filer. 
+#		05 Aug 2006 (sd) : Fixed quoting such that the command name is NOT in the quoted string.
+#		23 Aug 2006 (sd) : Conversion to format for rota v3 (better if* token parsing to eliminate quoting issues).
+#		10 Oct 2006 (sd) : Broke out feeds and build things.  The feeds.rota file will be maintained in ningaui/feeds
+#			part of the source tree.
+#		01 Feb 2007 (sd) : Added log_comb to the threehourly section as we roll out the distributed log_comb process.
+#		04 Feb 2007 (sd) : added log_hoods command to execute on logger every monday at midnight
+#		22 Feb 2007 (sd) : The Steward service has been added to support all things that must execute on only one 
+#			node, but are not really tied to a service. Log-comb and log-frag things were changed to use Steward.
+#		28 Mar 2007 (sd) : Pulled call to ng_host_stat as it is deprecated.
+#		02 Apr 2007 (sd) : Removed duplicate prune of log_frag file.
+#		01 Nov 2007 (sd) : Added prune of node_stats.rota log file.
+#		13 Nov 2007 (sd) : Added -m option to tmp clean for log directory
+#		26 Nov 2007 (sd) : Turned 'on' the site/log tmp cleaner.
+#		08 Jan 2008 (sd) : flist send now appends to its log rather than overwriting it.
+#		13 Feb 2008 (sd) : Added default setting for alert nickname
+#		17 Jan 2009 (sd) : Added new sections to support rota changes: even, odd, fourhourly
+#		11 Mar 2009 (sd) : Added -d option (delay) to log-comb call. 
+#
+# ---------------------------------------------------------------------------------------------------------------------
+
+everytime	# ------------------- run every time we execute ------------------------------------------------
+
+	ng_nar_set -a ${NG_CLUSTER:-unknown}		# affiliate it with our cluster
+
+	ng_sreq -t 5 -s ${srv_Jobber:-no-jobber} nattr ${myhost:-bad_host_name} "$(ng_get_nattr -p)"	# send our attributes to seneschal
+   
+	# we assume that woomera limits default to 1 if not expicitly set -- we dont want to auto set incase it is off
+
+	ifattr Tape ifnoqueue REAPER ng_wreq "job: REAPER after TAPE, cmd ng_tp_reaper"
+
+quarter hour	# ------------------ every 15 minutes -------------------------------------------------
+	sync ng_wreq limit Rota_flist_send 1
+	ifnoqueue Rota_flist_send ng_wreq 'job: Rota_flist_send cmd ng_wrapper -O1 $NG_ROOT/site/log/flist_send -o2 stdout  ng_flist_send'
+
+	ng_spaceman -v >>$NG_ROOT/site/log/spaceman 2>&1		# adds new directories if we are over full
+
+	ifattr Tape ifnoqueue VETTER ng_wreq "job: VETTER after TAPE, cmd ng_tp_autovet --sched"
+	ifattr TAPE_DUP_NODE ifnoqueue DUPER ng_wreq "job: DUPER after TAPE, cmd ng_tp_autodup --sched"
+
+	# two install commands submitted: the first one installs things that should not cause the node to bounce (manuals etc)
+	# must run 2nd one detached so as not to block woomera should it need to do a node stop/start
+	# the wreqs are submitted async and we need NOBOOT to run first, so we assign a job name and run the second one after
+	# it is very important that we only run one pkg_inst at a time when NG_PKGINSTALL_AVOID is set, otherwise limits are left at 0.
+	# once new rota is installed, change the next to lines to have this syntax:
+	#	sync  pkgjname="pkg_inst_$(ng_dt -i)"  (omitting the ; : from the end of the line)
+	sync ng_wreq limit Rota_pkg_inst 1
+	sync pkgjname="pkg_inst_$(ng_dt -i)"
+	ng_wreq "job $pkgjname : Rota_pkg_inst cmd ng_wrapper  ng_pkg_inst -s -D -N -v -P PKG_NOBOOT  >>$NG_ROOT/site/log/pkg_inst.noboot 2>&1"
+	ng_wreq "job ${pkgjname}A : Rota_pkg_inst after $pkgjname, cmd ng_wrapper  ng_pkg_inst -s -D -v  >>$NG_ROOT/site/log/pkg_inst 2>&1"
+
+half hour	# ------------------ every half hour x:00 and x:30 ------------------------------------
+
+hourly	 	# ---------- at the top of each hour---------------------------------------------------------
+
+	ng_rm_backup >>$NG_ROOT/site/log/rm_backup 2>&1
+	ifattr Filer ng_rm_dump_backup -v >>$NG_ROOT/site/log/rm_dump_backup 2>&1
+
+	ng_node_stat >>$NG_ROOT/site/log/node_stat.rota 2>&1
+
+even_hr		# ----------------- top of the hour on even numbered hrs ----------------------------------
+
+odd_hr		# ----------------- top of the hour on odd numbered hrs ----------------------------------
+
+tenpast		# ------------------ hourly but at 10 past the hour ----------------------------------------
+	ng_log_frag -v >>$NG_ROOT/site/log/log_frag 2>&1 		# pickup the ng_logd adjunct file and split it into frag files for log_comb
+
+midnight	# -------------------------------------------------------------------------------------------
+	# prune_log commands are run synchrounously before any other tasks, so safe to prune in the same execution period
+	prune_log 3000 log/pkg_inst log/pkg_inst.noboot
+	prune_log 1000 log/perf_sen
+	#prune_log 1000 log/tapecount
+	prune_log 5000 log/flist_send
+	prune_log Sat 5000 log/log_trim
+	prune_log 5000 log/ng_init
+	prune_log 5000 log/log_comb log/log_frag log/fix_mlog log/fix_mlog2
+	prune_log 1000 log/nar_backup
+	prune_log 5000 log/node_stat.rota
+
+	ifdow Sun ng_log_trim >>$NG_ROOT/site/log/log_trim 2>&1		# trims up the master log
+
+	ifattr !Satellite ng_fixperm >>$NG_ROOT/site/log/fixperm 2>&1 	# keeps permissions on things sane
+
+	ng_narreq -v -b >>$NG_ROOT/site/log/nar_backup 2>&1		# daily copy from one of the hourly files
+
+twice_daily	# ---------------- executed about 6am and again about 6pm --------------------------------
+
+earlyam 	# ----------- 3am or so ---------------------------------------------------------------------
+	
+	ng_tmp_clean -v $TMP >$NG_ROOT/site/log/rota.tmpclean_tmp 2>&1
+	ng_tmp_clean -v -l woomera $NG_ROOT/site/woomera >$NG_ROOT/site/log/rota.tmpclean_woo 2>&1
+	ng_tmp_clean -v -m -l site_log -a 180 $NG_ROOT/site/log >$NG_ROOT/site/log/rota.tmpclean_log 2>&1
+	ng_tmp_clean -v -a 62 -l bilabong  $TMP/billabong >$NG_ROOT/site/log/rota.tmpclean_bil 2>&1
+
+	crontab -l >$NG_ROOT/site/crontab.ningaui.cur 2>&1 		# capture current contents of crontable
+
+	ifattr Steward ng_log_sethoods -v >>$NG_ROOT/site/log/log_sethoods 2>&1
+
+threehourly	# ---------- every three hours beginning at 1am ----------------------------------------------
+	sync ng_wreq limit LOG_COMB 1
+	ng_wreq 'job: LOG_COMB cmd ng_wrapper -O1 $NG_ROOT/site/log/log_comb -o2 stdout  ng_log_comb -d -v '
+	ifattr Steward ng_wrapper --detach ng_tp_tfrag_comb >$NG_ROOT/site/log/tpfrag_comb 2>&1
+
+fourhourly	# ---------- every four hours beginning at 1am --------------------------------------------
+
+sixhourly	# ---------- every six hours beginning at 1am ----------------------------------------------
+
+build		# ---------- special build time in rota  4amish ----------------------------------------------
+# this stuff should be in build.rota if it is needed
+
+predawn		 # ---------- just before sun up (5amish) ----------------------------------------------------
+	ng_rm_sync -m >$NG_ROOT/site/rm/rmsync.total 2>&1    # dumps local repmgr stats 
+
+	# balance once a week
+	ifdow Wed ifattr Steward ng_log_sethoods -b -v >>$NG_ROOT/site/log/log_sethoods 2>&1
+	
+latemorn 	# ----------- about 10am --------------------------------------------------------------------
+	ifattr Filer ng_fix_mlog_unattached -v -v >>$NG_ROOT/site/log/fix_mlog 2>&1		# recycle unattached mlogs and masterlogs
+
+noon		# -------------------- a nooner -------------------------------------------------------------
+
+afternoon 	# ----------------  about 4pm ---------------------------------------------------------------
+	
+evening 	# ---------------- about 8pm  ---------------------------------------------------------------
+
+night 		# -------------- about 10pm------------------------------------------------------------------
+
+node_start	# ----- driven 'manually' by ng_node after all things have started -------------
+
+node_stop	# ----- driven 'manually' by ng_node as things are being shutdown ---------------
+

@@ -1,0 +1,123 @@
+
+# ======================================================================== v1.0/0a157 
+#                                                         
+#       This software is part of the AT&T Ningaui distribution 
+#	
+#       Copyright (c) 2001-2009 by AT&T Intellectual Property. All rights reserved
+#	AT&T and the AT&T logo are trademarks of AT&T Intellectual Property.
+#	
+#       Ningaui software is licensed under the Common Public
+#       License, Version 1.0  by AT&T Intellectual Property.
+#                                                                      
+#       A copy of the License is available at    
+#       http://www.opensource.org/licenses/cpl1.0.txt             
+#                                                                      
+#       Information and Software Systems Research               
+#       AT&T Labs 
+#       Florham Park, NJ                            
+#	
+#	Send questions, comments via email to ningaui_support@research.att.com.
+#	
+#                                                                      
+# ======================================================================== 0a229
+
+
+# Mods:
+#	02 Sep 2003 :  deprecated propylaeum (removed)
+#	05 May 2005 :  deprecated ng_rm_sanity (removed)
+# 	20 Jul 2005 :  converted to mk   (sd)
+#	02 Aug 2005 (sd) : removed rm_limits from install; function duplicated in site_prep and wstart.
+#	15 Nov 2005 (sd) : added install: to put in the rm_db thing(s) we created
+#	29 Dec 2005 (sd) : Corrected installation directive of rm_picknodes.
+#	16 Feb 2006 (sd) : modified to allow build on windows. 
+#	03 Apr 2006 (sd) : Added stuff for rm_dbd.
+#	28 Jul 2006 (sd) : Added rm_dump_backup
+#	28 Aug 2006 (sd) : Added things to support the code release. 
+#	20 Dec 2006 (sd) : Yanked some of the deprecated scripts (mend/prune)
+#	09 Apr 2007 (bsr) : Yanked some of the deprecated scripts (syncadd)
+#	12 Dec 2007 (sd) : Commented out ng_repmgr from all list so that we can have a clean build of potoroo. 
+#	31 Mar 2008 (sd) : Allowing repmgr to build again as broken bits were fixed and checked in.
+# 	03 Apr 2008 (sd) : Commented out repmgr again as it coredumps in its current state
+#	17 Apr 2008 (sd) : repmgr back in.
+#
+
+MKSHELL = `echo ${GLMK_SHELL:-ksh}`		
+
+# these must be set before panoptic is pulled in
+#
+ALL = ng_repmgr ng_repmgrbt ng_rm_size ng_spaceman ng_spaceman_nm ng_rm_join ng_sumfs ng_spaceadj ng_rmreq  ng_rm_pickn ng_rm_dbd ng_rm_d1agent
+INSTALL = $ALL ng_flist_new ng_flist_add ng_flist_del ng_flist_send \
+	ng_rm_rcv_flist ng_rm_rcv_file ng_rm_del_file ng_rm_send_file \
+	ng_rm_disperse \
+	ng_rm_sync ng_shuffle ng_rm_syncverify \
+	ng_rm_where ng_rm_register ng_rm_balance \
+	ng_rm_backup ng_rm_dump_backup ng_rm_dedup \
+	ng_spaceman_mv ng_rm_rename_file ng_rm_mv_file \
+	ng_rm_unreg  ng_rmbt_start ng_rmbtreq ng_rm_db_vet ng_rm_fstat \
+	ng_rm_start  ng_rmreq ng_rm_pick_nodes ng_rm_btstat ng_rm_2dbd ng_rm_dbd_start ng_rm_df \
+	ng_rm_d1agent ng_rm_arena_list ng_rm_arena
+
+SCDSRC = ng_repmgr ng_repmgrbt ng_spaceman ng_spaceman_nm ng_spaceman_mv rm_where rm_register spaceadj rm_unreg rm_pick_nodes rm_btstat rm_2dbd rm_dbd rm_d1agent
+
+htmlcat = repmgr
+
+< $NG_SRC/panoptic.mk
+IFLAGS =$IFLAGS -I/usr/local/include
+
+NUKE = $NUKE  *_?dbm *.man $ALL
+
+lib_needs = $libng 					# ningaui libs that we need (in search order)
+lib_depends = ${lib_needs:%=$NG_SRC/stlib/lib%.a} 	# full paths for the dependancy list
+lib_socket_depends = $NG_SRC/stlib/lib${libng_si}.a
+lib_noast_depends = $NG_SRC/stlib/libng_noast$gflag.a
+lib_ref = -L$NG_SRC/stlib ${lib_needs:%=-l%} 		# references for (g)cc command
+lib_noast_ref = -L$NG_SRC/stlib -l$libng_noast 		# references for (g)cc command
+lib_gdbm_ref = -L/usr/local/lib -lgdbm
+lib_socket_ref = -L$NG_SRC/stlib -l${libng_si}
+#last_ref   		now defined in panoptic.mk
+#lib_pthread_ref 	defined by panoptic.mk/ksh
+
+ng_repmgr::	repmgr.man repmgr.o parse.o munge.o workflow.o copylist.o  $lib_depends
+	$CC $IFLAGS $CFLAGS ${prereq/*.man / } -o $target $lib_ref -lc $last_ref  $lgen_ref -lc
+
+# repmgrbt is a multi-threaded thing, sfio is not.  So we must go to some extremes to avoid
+# including sfio stuff when we link....
+# 	do NOT use IFLAGS  and reference MUST be to the .c and NOT the .o
+# 	do NOT include NG_SRC/include on the command line or we end up pulling in sfio.h things
+ng_repmgrbt:: 	repmgrbt.c	$lib_noast_depends
+	$CC -I. $CFLAGS ${prereq/*.man / } -o $target $lib_noast_ref $lib_pthread_ref $SYS_SOCK_LIB
+
+ng_repmgrbt2:: 	repmgrbt2.c	$lib_noast_depends
+	$CC -I. $CFLAGS ${prereq/*.man / } -o $target $lib_noast_ref $lib_pthread_ref $SYS_SOCK_LIB
+
+# ------------------------------------------------------------------------------------------------
+ng_rm_join::	rm_join.man rm_join.o  $lib_depends
+	$CC $IFLAGS $CFLAGS ${prereq/*.man / } -o $target $lib_ref $last_ref
+
+ng_rmreq::		rmreq.man rmreq.o  $lib_depends
+	$CC $IFLAGS $CFLAGS ${prereq/*.man / } -o $target $lib_ref $last_ref
+
+ng_rm_size::	rm_size.man rm_size.o  $lib_depends
+	$CC $IFLAGS $CFLAGS ${prereq/*.man / } -o $target $lib_ref $last_ref
+
+ng_rm_dbd::	rm_dbd.man rm_dbd.o $lib_depends
+	$CC $IFLAGS -I/usr/local/include $CFLAGS ${prereq/*.man / } -o $target -L$NG_SRC/stlib -lng_si$gflag $lib_ref $last_ref
+
+ng_rm_d1agent::    rm_d1agent.man rm_d1agent.o $lib_depends $lib_socket_depends
+	$CC $IFLAGS $CFLAGS ${prereq/*.man / } -o $target $lib_socket_ref $lib_ref $last_ref
+
+ng_sumfs::		sumfs.man sumfs.o $lib_depends
+	$CC $IFLAGS $CFLAGS ${prereq/*.man / } -o $target $lib_ref $last_ref
+
+ng_rm_pickn::	rm_pickn.man rm_pickn.o $lib_depends
+	$CC $IFLAGS $CFLAGS ${prereq/*.man / } -o $target $lib_ref $last_ref  
+
+ng_spaceman::	spaceman.man spaceman.o $lib_depends
+	$CC $IFLAGS $CFLAGS ${prereq/*.man / } -o $target $lib_ref $last_ref
+
+ng_spaceman_nm::	spaceman_nm.man spaceman_nm.o $lib_depends
+	$CC $IFLAGS $CFLAGS ${prereq/*.man / } -o $target $lib_ref $last_ref
+
+ng_spaceadj::	spaceadj.o $lib_depends
+	$CC $IFLAGS $CFLAGS ${prereq/*.man / } -o $target $lib_ref $last_ref
+

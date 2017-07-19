@@ -1,0 +1,45 @@
+
+# ======================================================================== v1.0/0a157 
+#                                                         
+#       This software is part of the AT&T Ningaui distribution 
+#	
+#       Copyright (c) 2001-2009 by AT&T Intellectual Property. All rights reserved
+#	AT&T and the AT&T logo are trademarks of AT&T Intellectual Property.
+#	
+#       Ningaui software is licensed under the Common Public
+#       License, Version 1.0  by AT&T Intellectual Property.
+#                                                                      
+#       A copy of the License is available at    
+#       http://www.opensource.org/licenses/cpl1.0.txt             
+#                                                                      
+#       Information and Software Systems Research               
+#       AT&T Labs 
+#       Florham Park, NJ                            
+#	
+#	Send questions, comments via email to ningaui_support@research.att.com.
+#	
+#                                                                      
+# ======================================================================== 0a229
+
+
+# converted to mk 9 Jul 2005 (sd)
+#	we make a tar file of the needed things. site_prep will 
+#	look for the tar file in ng_root/lib and if it is 
+#	there, it will unload it during the boot process. We have 
+#	to use a tar because  ssh is a directory. 
+#
+#	site_prep sets the correct permissions.  permissions are 
+#	relaxed here because we allow all group members to mantain
+#	things without requiring them to switch users. 
+#
+LIB_INSTALL = ningaui_usr.tar
+ALL = ningaui_usr.tar
+
+NUKE = $NUKE *.tar
+
+tar_contents = .profile
+
+< $NG_SRC/panoptic.mk
+
+ningaui_usr.tar: 
+	tar -cf $target $tar_contents

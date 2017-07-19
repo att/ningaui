@@ -1,0 +1,33 @@
+
+# ======================================================================== v1.0/0a157 
+#                                                         
+#       This software is part of the AT&T Ningaui distribution 
+#	
+#       Copyright (c) 2001-2009 by AT&T Intellectual Property. All rights reserved
+#	AT&T and the AT&T logo are trademarks of AT&T Intellectual Property.
+#	
+#       Ningaui software is licensed under the Common Public
+#       License, Version 1.0  by AT&T Intellectual Property.
+#                                                                      
+#       A copy of the License is available at    
+#       http://www.opensource.org/licenses/cpl1.0.txt             
+#                                                                      
+#       Information and Software Systems Research               
+#       AT&T Labs 
+#       Florham Park, NJ                            
+#	
+#	Send questions, comments via email to ningaui_support@research.att.com.
+#	
+#                                                                      
+# ======================================================================== 0a229
+
+
+# crontable installed for the ningaui user id.
+#
+# Most scheduled jobs for ningaui should be put into  a rota controlfile.
+# This file is installed into $NG_ROOT/lib at system start and _ROOT_PATH_ 
+# is fixed to be the correct path for NG_ROOT on the local node.
+#
+# machines like smaug dont support */5
+# 1 Oct 2001 : changed to every 5 min to assist with log trimming
+0,5,10,15,20,25,30,35,40,45,50,55 * * * *		NG_ROOT=_ROOT_PATH_ _ROOT_PATH_/bin/ksh _ROOT_PATH_/bin/ng_rota >>_ROOT_PATH_/site/log/rota 2>&1

@@ -1,0 +1,200 @@
+
+# ======================================================================== v1.0/0a157 
+#                                                         
+#       This software is part of the AT&T Ningaui distribution 
+#	
+#       Copyright (c) 2001-2009 by AT&T Intellectual Property. All rights reserved
+#	AT&T and the AT&T logo are trademarks of AT&T Intellectual Property.
+#	
+#       Ningaui software is licensed under the Common Public
+#       License, Version 1.0  by AT&T Intellectual Property.
+#                                                                      
+#       A copy of the License is available at    
+#       http://www.opensource.org/licenses/cpl1.0.txt             
+#                                                                      
+#       Information and Software Systems Research               
+#       AT&T Labs 
+#       Florham Park, NJ                            
+#	
+#	Send questions, comments via email to ningaui_support@research.att.com.
+#	
+#                                                                      
+# ======================================================================== 0a229
+
+
+
+#	Mods:
+#		31 Dec 2003 (sd) : Ripped out feeds and mlink tools and all references.
+#		27 Nov 2004 (sd) : major cleanup now that all that was ripped from here is gone.
+#		23 Jan 2005 (sd) : Added main.rota to be installed into lib
+#		19 Jul 2005 (sd) : Converted to mk and cleaned up a bit
+#		02 Aug 2005 (sd) : Removed satellite.ksh from install -- deprecated.
+#		23 Aug 2006 (sd) : Conversion to support the release
+#		16 Oct 2006 (sd) : we now support seq as ng_seq
+#		19 Feb 2007 (sd) : Changed so that we compile (and ship) ng_FIXUP_dosu from ng_dosu.c
+#		17 Mar 2009 (sd) : Added faregate and set_wwpn.
+#		14 Oct 2009 (sd) : Added fixup references.
+#
+# =====================================================================================================
+#	Compatibility issues:
+#		The following modules contain code specific to one or more operating systems 
+#		types or have been modified to correct misbehaviour under a particular O/S.  
+#		These modules should be completely tested when a new flavour of O/S is
+#		introduced.  O/S changes to minor version (e.g. 6.1 to 6.3) have caused issues. 
+#			argus.c
+#			eqreq.ksh
+#			fix_hashbang.ksh
+#			get_likeme.ksh
+#			init.ksh
+#			isolate.ksh
+#			lambast.c
+#			mkspacehogs.ksh
+#			new_rock.ksh
+#			ng_df.ksh
+#			ng_dosu.c
+#			ng_get_nattr.ksh
+#			ng_ncpus.c
+#			ng_ps.ksh
+#			ng_uname.ksh
+#			node.ksh
+#			ptime.c
+#			rc.d.ksh
+#			scan.ksh
+#			scsi_map.ksh
+#			set_wwpn.ksh
+#			setbcast.ksh
+#			setclock.ksh
+#			setup.ksh
+#			site_prep.ksh
+#			srv_netif.ksh
+#
+# =====================================================================================================
+
+# must be set in EVERY mkfile AND in panoptic.mk 
+MKSHELL = `echo ${GLMK_SHELL:-ksh}`		
+
+# these must be set before panoptic is pulled in
+#
+htmlcat = tool
+
+# files with self contained documentation (generates manual pages)
+xSCDSRC = ng_cte ng_dt ng_log ng_logd  ng_trimlog ng_sendudp \
+	ng_sendtcp ng_tube  ng_mailer ng_mime  \
+	ng_sysname  power_map power_mgt node fixperm \
+	ng_FIXUP_wrapper ng_rcmd rollup ng_members ckpt_prep \
+ 	ng_goaway ng_refurb ng_loadave setbcast shoveit fcp shunt_mon \
+	endless ng_df ng_tumbler pkg_inst pkg_list ng_rota get_likeme green_light\
+	ng_glog tmp_nm ng_go meld ng_md5 ng_proc_info ng_stat log_sethoods scsi_map equerry fmutation eqreq eclipsed\
+	ng_fix_hashbang srv_filer eq_augur end_proc
+
+SCDSRC = eq_augur self_contained_doc admeasure argus collate equerry fmutation green_light lambast meld \
+	ng_cte ng_dosu ng_dt ng_log ng_logd ng_md5 \
+	ng_ncpus ng_rcmd ng_sendtcp ng_sendudp ng_stamptime ng_stat ng_sysname ng_timelimit ng_timestamp ng_tube \
+	rename seq shunt slate tmp_nm tumbler ccp ckpt_prep \
+	eclipsed end_proc endless eqreq fcp fix_hashbang fixperm flog \
+	get_likeme init install isolate join_cluster log_comb log_frag log_sethoods log_trim \
+	make_man ng_add_nattr ng_bohica ng_breaklock ng_cram ng_del_nattr \
+	ng_df ng_fix_mlog_unattached ng_fix_mlog_unattached2 ng_get_nattr ng_glog ng_go ng_goaway ng_loadave \
+	ng_log_stats ng_mailer ng_members ng_mime ng_proc_info ng_ps \
+	ng_rota ng_species ng_sumcol ng_trimlog ng_uname faregate \
+	node perf_sen pkg_inst pkg_list power_map power_mgt refurb roll_log rollup \
+	scan scsi_map setbcast setup_common shoveit shunt_mon site_prep srv_alerter srv_d1agent srv_filer \
+	srv_jobber srv_netif srv_stats srv_steward srv_tpchanger tmp_clean \
+	fixup ng_FIXUP_rc.d ng_FIXUP_wrapper set_wwpn
+
+NOPFX_SCDSRC = self_contained_doc
+
+scripts = ng_fixup ng_FIXUP_rc.d ng_FIXUP_wrapper ng_add_nattr ng_ccp ng_ckpt_prep ng_cram ng_del_nattr ng_df\
+	ng_endless ng_eqreq ng_eq_augur ng_fcp ng_fix_hashbang ng_fixperm ng_get_likeme ng_get_nattr ng_glog ng_gmetric ng_go ng_goaway\
+	ng_init ng_install ng_isolate ng_join_cluster ng_loadave ng_log_comb ng_log_frag\
+	ng_log_stats ng_log_trim ng_mailer ng_make_man ng_members ng_mime ng_mkspacehogs ng_node\
+	ng_perf_sen ng_pkg_inst ng_pkg_list ng_power_map ng_power_mgt ng_proc_info ng_prcol ng_ps\
+	ng_refurb ng_roll_log ng_rollup ng_rota ng_scan ng_scsi_map ng_setbcast ng_setup\
+	ng_setup_common ng_shoveit ng_shunt_mon ng_site_prep ng_species ng_srv_alerter \
+	ng_srv_filer ng_srv_jobber ng_srv_netif ng_srv_d1agent ng_srv_stats ng_srv_steward ng_srv_tpchanger ng_sumcol ng_tmp_clean ng_trimlog ng_uname \
+	ng_fix_mlog_unattached ng_fix_mlog_unattached2 ng_log_sethoods  ng_eclipsed ng_end_proc ng_faregate \
+	ng_set_wwpn
+
+progs = ng_log ng_dt ng_tube ng_stamptime ng_sysname ng_sendtcp ng_shunt ng_logd ng_argus ng_rcmd ng_ncpus ng_sendudp \
+	ng_FIXUP_dosu  ng_cte ng_timestamp ng_collate ng_timelimit ng_seq ng_slate ng_tumbler ng_tmp_nm ng_meld \
+	ng_green_light ng_iorate ng_lambast ng_admeasure ng_md5 ng_rename ng_stat ng_equerry ng_fmutation
+
+ALL = $progs
+INSTALL = $progs $scripts
+LIB_INSTALL = main.rota crontab_base.ningaui log_stats.tab self_contained_doc.rb
+
+< $NG_SRC/panoptic.mk
+
+NUKE = $NUKE  $ALL *.man $NG_SRC/.bin/ng_install $NG_SRC/.bin/ng_make_man $NG_SRC/.bin/ng_tmp_nm
+
+lib_needs = $libng 					# ningaui libs that we need (in search order)
+lib_depends = ${lib_needs:%=$NG_SRC/stlib/lib%.a} 	# convert needs to full paths for the dependancy list
+lib_socket_depends = $NG_SRC/stlib/lib${libng_si}.a
+lib_ref = -L$NG_SRC/stlib ${lib_needs:%=-l%} 		# references for (g)cc command (add -l)
+lib_socket_ref = -L$NG_SRC/stlib -l${libng_si}
+#last_ref = 	# last ref now comes from panoptic environment (library references for the tail of the (g)cc command
+
+#	in order to build on a non-potoroo node (no /ningaui/bin) or a new node, we must put a few things
+#	into a known location.  the boot-strap build includes $NG_SRC/.bin in the search 
+#
+precompile:V: 
+	ng_make ng_tmp_nm
+	cp install.ksh $NG_SRC/.bin/ng_install			# do NOT use ng_install as we do NOT want #!shell put in for these
+	cp make_man.ksh $NG_SRC/.bin/ng_make_man		# do NOT use ng_install as we do NOT want #!shell put in for these
+	cp ng_tmp_nm $NG_SRC/.bin/
+	
+# dependancy order IS important.  files include with #include are placed before the *.man depenancy
+# files that are compiled on their own, and the .o is supplied on the (g)cc line are after *.man!
+# rules are needed only when one or more of these is true:
+#	multiple source modules (e.g. collate)
+#	source file is not ng_foo.c
+#	needs 'extra' lib references (-lm, socket etc)
+
+ng_admeasure::	admeasure.o  $lib_depends
+	$CC $IFLAGS $CFLAGS ${prereq/*.man / } -o $target $lib_ref $last_ref -lm
+
+ng_collate::	coll_netif.c collate.man collate.o $lib_depends $lib_socket_depends
+	$CC $IFLAGS $CFLAGS ${prereq/*.man / } -o $target $lib_socket_ref $lib_ref $last_ref
+
+ng_equerry::	equerry.man equerry.o $lib_depends $lib_socket_depends
+	$CC $IFLAGS $CFLAGS ${prereq/*.man / } -o $target $lib_socket_ref $lib_ref $last_ref
+
+ng_iorate::        iorate.o $lib_depends
+	$CC $IFLAGS $CFLAGS ${prereq/*.man / } -o $target $lib_ref $last_ref -lm
+
+ng_log::       ng_log.man ng_log.o $lib_depends $lib_socket_depends
+	$CC $IFLAGS $CFLAGS ${prereq/*.man / } -o $target $lib_socket_ref $lib_ref $last_ref
+
+ng_logd::       ng_logd.man ng_logd.o $lib_depends $lib_socket_depends
+	$CC $IFLAGS $CFLAGS ${prereq/*.man / } -o $target $lib_socket_ref $lib_ref $last_ref
+
+ng_meld::	meld.man meld.o $lib_depends
+	$CC $IFLAGS $CFLAGS ${prereq/*.man / } -o $target $lib_ref $last_ref -lz
+
+ng_rcmd::       ng_rcmd.man ng_rcmd.o $lib_depends $lib_socket_depends
+	$CC $IFLAGS $CFLAGS ${prereq/*.man / } -o $target $lib_socket_ref $lib_ref $last_ref
+
+ng_rename::	rename.man rename.o $lib_depends 
+	$CC $IFLAGS $CFLAGS ${prereq/*.man / } -o $target $lib_socket_ref $lib_ref $last_ref
+
+ng_sendtcp::    ng_sendtcp.man ng_sendtcp.o $lib_depends $lib_socket_depends
+	$CC $IFLAGS $CFLAGS ${prereq/*.man / } -o $target $lib_socket_ref $lib_ref $last_ref
+
+ng_sendudp::    ng_sendudp.man ng_sendudp.o $lib_depends $lib_socket_depends
+	$CC $IFLAGS $CFLAGS ${prereq/*.man / } -o $target $lib_socket_ref $lib_ref $last_ref
+
+ng_lambast::	lambast.o $lib_depends $lib_socket_depends
+	$CC $IFLAGS $CFLAGS ${prereq/*.man / } -o $target $lib_socket_ref $lib_ref $last_ref
+
+ng_shunt::	shunt.man shunt.o $lib_depends $lib_socket_depends
+	$CC $IFLAGS $CFLAGS ${prereq/*.man / } -o $target $lib_socket_ref $lib_ref $last_ref
+
+ng_slate::	slate.man slate.o $lib_depends
+	$CC $IFLAGS $CFLAGS ${prereq/*.man / } -o $target $lib_socket_ref $lib_ref $last_ref
+
+ng_tumbler::       tumbler.man tumbler.o $lib_depends
+	$CC $IFLAGS $CFLAGS ${prereq/*.man / } -o $target $lib_socket_ref $lib_ref $last_ref
+
+ng_FIXUP_dosu::       ng_dosu.o $lib_depends
+	$CC $IFLAGS $CFLAGS ${prereq/*.man / } -o $target $lib_ref $last_ref
+

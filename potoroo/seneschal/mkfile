@@ -1,0 +1,63 @@
+
+# ======================================================================== v1.0/0a157 
+#                                                         
+#       This software is part of the AT&T Ningaui distribution 
+#	
+#       Copyright (c) 2001-2009 by AT&T Intellectual Property. All rights reserved
+#	AT&T and the AT&T logo are trademarks of AT&T Intellectual Property.
+#	
+#       Ningaui software is licensed under the Common Public
+#       License, Version 1.0  by AT&T Intellectual Property.
+#                                                                      
+#       A copy of the License is available at    
+#       http://www.opensource.org/licenses/cpl1.0.txt             
+#                                                                      
+#       Information and Software Systems Research               
+#       AT&T Labs 
+#       Florham Park, NJ                            
+#	
+#	Send questions, comments via email to ningaui_support@research.att.com.
+#	
+#                                                                      
+# ======================================================================== 0a229
+
+
+# converted to mk 27 Jun 2005 
+# Mods:
+#	28 Aug 2006 (sd) : Added things to support software release
+
+# must be set in EVERY mkfile AND in panoptic.mk 
+MKSHELL = `echo ${GLMK_SHELL:-ksh}`		
+
+SCDSRC =  sreq s_mvfiles s_eoj seneschal sendbid job_mon job_nodes s_start goad send_rmdump extend_leases s_wrapper
+INSTALL= ng_seneschal ng_s_mvfiles ng_sreq ng_s_eoj ng_sendbid ng_sreq ng_s_start \
+	ng_job_mon ng_job_nodes ng_goad ng_send_rmdump ng_extend_leases ng_s_sherlock ng_s_wrapper ng_s_funnel
+ALL = ng_seneschal ng_sreq ng_s_funnel
+
+htmlcat = jobmgt
+
+<$NG_SRC/panoptic.mk
+
+NUKE = $NUKE $ALL *.man
+
+lib_needs = $libng_si $libng                            # ningaui libs that we need (in search order)
+lib_depends = ${lib_needs:%=$NG_SRC/stlib/lib%.a}       # full paths for the dependancy list
+lib_ref = -L$NG_SRC/stlib ${lib_needs:%=-l%} $last_ref           # references for (g)cc command
+
+ng_seneschal:	bquote.c s_rmif.c s_ckpt.c s_debug.c s_dump.c s_files.c s_fsr.c s_gar.c s_jobs.c  s_mpn.c s_nattr.c seneschal.man seneschal.o s_netif.o s_replace.o  
+	$CC $IFLAGS $CFLAGS -o $target ${prereq/*.man / }  $lib_ref $SYS_SOCK_LIB $SYS_LIB
+	rm seneschal.o
+
+ng_sreq: sreq.man sreq.o
+	$CC $IFLAGS $CFLAGS -o $target ${prereq/*.man / }  $lib_ref $SYS_SOCK_LIB
+
+# build these to generate stand-alone selftest binaries
+s_replace : s_replace.c 
+	$CC -DSELF_TEST $IFLAGS $CFLAGS -o $target $prereq $lib_ref $SYS_SOCK_LIB
+	
+s_nattr:  s_nattr.c 
+	$CC -DSELF_TEST $IFLAGS $CFLAGS -o $target $prereq $lib_ref $SYS_SOCK_LIB
+
+ng_s_funnel:  s_funnel.man s_funnel.c 
+	$CC -DSELF_TEST $IFLAGS $CFLAGS -o $target ${prereq##*man } $lib_ref $SYS_SOCK_LIB
+

@@ -1,0 +1,53 @@
+
+# ======================================================================== v1.0/0a157 
+#                                                         
+#       This software is part of the AT&T Ningaui distribution 
+#	
+#       Copyright (c) 2001-2009 by AT&T Intellectual Property. All rights reserved
+#	AT&T and the AT&T logo are trademarks of AT&T Intellectual Property.
+#	
+#       Ningaui software is licensed under the Common Public
+#       License, Version 1.0  by AT&T Intellectual Property.
+#                                                                      
+#       A copy of the License is available at    
+#       http://www.opensource.org/licenses/cpl1.0.txt             
+#                                                                      
+#       Information and Software Systems Research               
+#       AT&T Labs 
+#       Florham Park, NJ                            
+#	
+#	Send questions, comments via email to ningaui_support@research.att.com.
+#	
+#                                                                      
+# ======================================================================== 0a229
+
+
+# converted to mk 6 July 2005
+#
+# Mods:
+#	28 Aug 2006 (sd) : Added stuff to support code release
+
+MKSHELL = `echo ${GLMK_SHELL:-ksh}`		
+
+# these must be set before panoptic is pulled in
+#
+INSTALL = ng_wreq ng_woomera ng_wstart ng_whist ng_wstate
+ALL =  ng_woomera ng_wreq
+SCDSRC = wreq woomera whist
+
+htmlcat = jobmgt
+
+< $NG_SRC/panoptic.mk
+
+NUKE = $NUKE woomera.man wreq.man $ALL
+
+lib_needs = $libng 					# ningaui libs that we need (in search order)
+lib_depends = ${lib_needs:%=$NG_SRC/stlib/lib%.a} 	# full paths for the dependancy list
+lib_ref = -L$NG_SRC/stlib ${lib_needs:%=-l%} 		# references for (g)cc command
+
+ng_woomera::	woomera.man woomera.o input.o node.o job.o execute.o explain.o prune.o startup.o list.o prtimes.o 
+	$CC $IFLAGS $CFLAGS ${prereq/*.man / } -o $target $lib_ref  $last_ref $SYS_SOCK_LIB
+
+ng_wreq::	wreq.man wreq.o  wreq.man
+	$CC $IFLAGS $CFLAGS ${prereq/*.man / } -o $target $lib_ref  $last_ref  $SYS_SOCK_LIB
+

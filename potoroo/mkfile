@@ -1,0 +1,103 @@
+
+# ======================================================================== v1.0/0a157 
+#                                                         
+#       This software is part of the AT&T Ningaui distribution 
+#	
+#       Copyright (c) 2001-2009 by AT&T Intellectual Property. All rights reserved
+#	AT&T and the AT&T logo are trademarks of AT&T Intellectual Property.
+#	
+#       Ningaui software is licensed under the Common Public
+#       License, Version 1.0  by AT&T Intellectual Property.
+#                                                                      
+#       A copy of the License is available at    
+#       http://www.opensource.org/licenses/cpl1.0.txt             
+#                                                                      
+#       Information and Software Systems Research               
+#       AT&T Labs 
+#       Florham Park, NJ                            
+#	
+#	Send questions, comments via email to ningaui_support@research.att.com.
+#	
+#                                                                      
+# ======================================================================== 0a229
+
+
+#
+#	This is the upper level make file responsible for building 
+#	in each indicated subdirectory. Each directory assigned to 
+#	the dir variable will be made when nmake is invoked for any
+#	target in the target list.
+#
+#	these are used to build the top level precompile rules based on what packages need 
+#	PC_provides:	ningaui_libs [libng libng_si] 
+#	BLD_requires:	ng ng_si
+#
+#	Mod:	 converted to mk 7 July 2005
+#		12 Sep 2005 (sd) : retrie and gre officially moved to contrib package.
+#		13 Dec 2005 (sd) : xfm moved to contrib 
+#		25 Aug 2006 (sd) : added stuff to support software release
+# ---------------------------------------------------------------------------------------------
+
+# must be set in EVERY mkfile AND in panoptic.mk -- erk.
+MKSHELL = `echo ${GLMK_SHELL:-ksh}`		
+
+# these must be set before panoptic is pulled in
+#
+INSTALL = 
+ALL =  
+SCDSRC = 
+
+htmlcat = 
+
+< $NG_SRC/panoptic.mk
+
+#	Under nmake we used to be fussy about order based on the target -- we've moved past that
+dirs = lib lib_ruby tool  socket cluster pinkpages seneschal nawab woomera zookeeper repmgr ningaui_user srcmgt spyglass srvm tape_mgmt
+
+# we must make ng_types.h explicitly as the lib stuff needs it 
+precompile:V:
+	export TASK=$target
+	(
+		cd lib
+		mk ng_types.h
+	)
+	mk do_task
+
+nuke:V:
+	export TASK=$target
+	mk do_task
+
+all:V:
+	export TASK=$target
+	mk do_task
+
+install:V:
+	export TASK=$target
+	mk do_task
+
+manpages:V:
+	export TASK=all.html
+	mk do_task
+	export TASK=all.txt
+	mk do_task
+
+# logic for doing the subdirectories is the same regardless of the task; this reduces the duplication of code
+do_task:VQ:
+	case `uname -s`	in
+		Sun*)	;;					# these dont build on sun, so leave them off
+		IRIX*|Sgi*)	;;				# or sgi for that matter
+		*)	dirs="$dirs tape ";;			# we add these if not sgi or sun 
+	esac
+	for d in $dirs
+	do
+		(
+			if cd $d
+			then
+				echo "potoroo/mkfile: ng_make $TASK  in $d begins"
+				ng_make --verbose $TASK
+				printf "mk_status: $TASK d=$d [OK]\n"	# mk runs us with set -x so if we get here it worked
+			fi
+		)
+	done
+	printf "====== finished $TASK in $PWD  [OK]\n"
+

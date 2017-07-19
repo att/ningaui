@@ -1,0 +1,268 @@
+
+# ======================================================================== v1.0/0a157 
+#                                                         
+#       This software is part of the AT&T Ningaui distribution 
+#	
+#       Copyright (c) 2001-2009 by AT&T Intellectual Property. All rights reserved
+#	AT&T and the AT&T logo are trademarks of AT&T Intellectual Property.
+#	
+#       Ningaui software is licensed under the Common Public
+#       License, Version 1.0  by AT&T Intellectual Property.
+#                                                                      
+#       A copy of the License is available at    
+#       http://www.opensource.org/licenses/cpl1.0.txt             
+#                                                                      
+#       Information and Software Systems Research               
+#       AT&T Labs 
+#       Florham Park, NJ                            
+#	
+#	Send questions, comments via email to ningaui_support@research.att.com.
+#	
+#                                                                      
+# ======================================================================== 0a229
+
+
+#NOTES:
+#	the precompile step actually builds this library and then installs it into 
+#   	the stable library directory in NG_SRC.  It is done this way so that we are sure 
+#	the library is built first during the construction process
+#
+#	There is a special install rule to support the pzip partitioning files.
+#	They are installed in $NG_ROOT/lib (aka $PKG_LIB) under a pz directory
+#	(the pz dir name is defined by the ast pzip utility, not in our control)
+#	.prt files should be added to the NONG_LIB_INSTALL variable as pz/xxxxx.prt
+#
+#	There is a new ng_noast lib which contains three functions (ng_rx, ng_serv and 
+#	ng_testport) that must be ast reference free. This library is referenced only
+#	by repmgrbt; These functions are also made and placed into the standard 
+#	potoroo library with ast references. (someday ast will be thread safe.)
+#	This library is made and installed during precompile.
+#
+#	See the comment with ng_types.h rule as the library will always be built (never
+#	up to date).
+#
+# Mods:
+#	10 Nov 2004 : removed daad references as they have moved
+# 	21 Jul 2005 : converted to mk   (sd)
+#	06 Aug 2005 (sd) : added ng_types.h to nuke list
+#	09 Aug 1005 (sd) : Changed ng_types.h to a virtual rule
+#	06 Jan 2005 (sd) : added ng_types.h reference to library rules as it was being built late.
+#	07 Jun 2006 (sd) : Added dptree functions
+#	25 Aug 2006 (sd) : Added stuf to support the release (HBD_RMH)
+#
+
+# must be set in EVERY mkfile AND in panoptic.mk -- erk.
+MKSHELL = `echo ${GLMK_SHELL:-ksh}`		
+NPROC = 1
+
+# these must be set before panoptic is pulled in
+#
+ALL = libraries
+INSTALL = 
+LIB_INSTALL = stdfun procfun addressbook
+
+htmlcat = lib
+
+SCDSRC = dptree gen_types ng_alloc ng_binary ng_bleat ng_ckpt ng_cmd ng_dsn ng_env ng_exchln \
+	ng_fdump ng_fish ng_flowmgr ng_log ng_nar_if ng_netif ng_perrorstr ng_read \
+	ng_roll_log ng_rootnm ng_rx ng_serv ng_show_man ng_sleep ng_spaceman_if ng_stats ng_stdio ng_string \
+	ng_sum32 ng_sysctl ng_time ng_token ng_tumbler ng_var_exp tmp_nm
+
+< $NG_SRC/panoptic.mk
+
+NUKE = $NUKE  *.man  *.a ng_types.h gen_types
+
+lib_needs = $libng 					# ningaui libs that we need (in search order)
+lib_depends = ${lib_needs:%=$NG_SRC/stlib/lib%.a} 	# full paths for the dependancy list
+lib_ref = -L$NG_SRC/stlib ${lib_needs:%=-l%} 		# references for (g)cc command
+#last_ref = -L$AST/lib -last			# now defined in panoptic.mk
+
+#	library source 
+libsrc = ng_log ng_argv0 ng_verbose ng_time ng_alloc ng_perrorstr \
+	ng_stats ng_hrtime   \
+	ng_env symtab ng_cksum ng_sysname ng_rx ng_alloc ng_serv \
+	ng_srand ng_dummy_man ng_dummy_man2 ng_show_man \
+	ng_sum32 ng_binary  ng_sysname \
+	ng_die  \
+	ng_exchln \
+	ng_show_man   \
+	ng_netif ng_read ng_string \
+	ng_scramble vdexpand vdsqueeze \
+	ng_bleat ng_sleep ng_token pp_expand ng_var_exp \
+	ng_ckpt ng_spaceman_if ng_fish ng_fdump ng_rootnm  \
+	ng_sysctl  ng_stdio ng_flowmgr ng_cmd ng_getfields ng_nar_if ng_tumbler ng_roll_log tmp_nm ng_valid_ruser \
+	md5 dptree ng_sfio
+
+headers = ng_arg.h ng_basic.h ng_config.h ng_ext.h ng_lib.h ng_tokenise.h ng_types.h  ningaui.h vdelhdr.h
+
+# the no_ast library is built without any ast/sfio references. Until we build sfio in a pthread
+# safe manner, we need to keep this even though we have rid ourselves of ast references.
+no_ast_src = no_ast
+no_ast.o : no_ast.c 
+	#$CC -I. -I$NG_SRC/include  $CFLAGS ${prereq/*.man / } -c -o $target 
+	$CC -I. $CFLAGS ${prereq/*.man / } -c $prereq
+
+libraries:V: lib$libng.a lib$libng_noast.a
+
+${libsrc:%=%.o}:	ng_types.h 
+lib$libng.a(%.o):N:    %.o
+lib$libng.a:    ${libsrc:%=lib$libng.a(%.o)}
+	(
+	names="${newprereq//lib$libng.a\(}"					# pluck off lib.*( from each in newprereq
+	ar r lib$libng.a ${names//\)/} #&& rm ${names//\)/}	# archive and remove after ditching trailing ) from each name
+	)
+
+lib$libng_noast.a(%.o):N:    %.o 
+lib$libng_noast.a:   ${no_ast_src:%=lib$libng_noast.a(%.o)}
+	(
+	names="${newprereq//lib$libng_noast.a\(}"					# pluck off lib.*( from each in newprereq
+	ar r lib$libng_noast.a ${names//\)/} && rm ${names//\)/}	# archive and remove after ditching trailing ) from each name
+	)
+
+#	stdfun/procfun MUST go to PKG_ROOT here as they are needed to compile other utils etc 
+#	the INSTALL list includes them so that they are put into PKG_ROOT when install
+#	is run
+precompile:	pinstall
+
+#	/* cp -p needed to preserve ranlib settings for darwin; erk */
+pinstall:V: libraries
+	for h in $headers
+	do
+		cp -p $h $NG_SRC/include  2>/dev/null ||true
+	done
+	
+	cp -p stdfun.ksh $PKG_ROOT/lib/stdfun  2>/dev/null ||true
+	cp -p procfun.ksh $PKG_ROOT/lib/procfun  2>/dev/null ||true
+	
+	cp -p libng*.a $NG_SRC/stlib  2>/dev/null ||true
+	ranlib $NG_SRC/stlib/libng*.a $NG_SRC/stlib/libng_noast*.a  2>/dev/null ||true
+
+gen_types:	gen_types.c
+	$CC $IFLAGS $CFLAGS ${prereq/*.man / } -o $target $last_ref
+
+#  declared virtual so that it ALWAYS is remade.  Bad things happen if this file is checked in 
+#  to cvs (been there done that) and to prevent disaster should it happen again, this must be 
+#  made every time.  The downside is that running back to back mk's will always build things
+#  both times -- all of the source files depend on this and thus they are always out of date. 
+#  c'est la vie!
+ng_types.h:V:	gen_types
+	gen_types >$target
+
+#	these cause self test programmes to be created.  most .c files have #ifdef SELF_TEST 
+#   	lines that compile in a main() if it is defined
+#	
+
+selftests:	multi_test ng_ckpt ng_pinkpages ng_env ng_token ng_spaceman_if ng_read test_dptree
+
+test_dptree::	test_dptree.man test_dptree.c
+	$CC $IFLAGS $CFLAGS ${prereq/*.man / } -o $target -L../socket -lng_si$gflag $lib_ref -lng_si$gflag  $last_ref $SYS_SOCK_LIB
+
+# test_rx builds a test for ng_rx, the noast flavour does so without causing libng or libast to be linked in 
+test_rx::	test_rx.c $lib_depends
+	$CC $IFLAGS $CFLAGS  test_rx.c -o test_rx ng_rx.o  $lib_ref $last_ref
+
+noast_test_rx::	test_rx.c
+	$CC -I. -I $(NG_SRC)/include $CFLAGS -DSANS_AST test_rx.c -o noast_test_rx
+
+noast_test_serv::	test_serv.c
+	$CC -I. -I $NG_SRC/include $CFLAGS -DSANS_AST test_serv.c -o noast_test_serv -L. -lng$gflag
+
+multi_test:: multi_test.c $lib_depends
+
+ng_testport:	ng_testport.c  
+	gcc -DSELF_TEST ng_testport.c -o ng_testport 
+
+tmp_nm:	ng_read.c  
+	gcc $IFLAGS $CFLAGS -DSELF_TEST tmp_nm.c -o tmp_nm -L. -lng$gflag  $last_ref
+
+ng_read:	ng_read.c  
+	gcc -DSELF_TEST ng_read.c -o ng_read 
+
+ng_nar_if:	ng_nar_if.c  $lib_depends
+	#$(CC) -DSELF_TEST -I $(AST)/include/ast -I$(NG_SRC)/include $(CCFLAGS) $(mydir)/ng_nar_if.c -o ng_nar_if $lib_ref $last_ref
+	$CC $IFLAGS $CFLAGS -DSELF_TEST ${prereq/*.man / } -o $target -L. -lng$gflag  $last_ref
+
+test:	test.c  $lib_depends
+	$CC $IFLAGS $CFLAGS -DSELF_TEST ${prereq/*.man / } -o $target -L. -lng$gflag  $last_ref
+
+ng_bleat:	ng_bleat.c  $lib_depends
+	$CC $IFLAGS $CFLAGS -DSELF_TEST ${prereq/*.man / } -o $target -L. -lng$gflag  $last_ref
+
+ng_cmd:	ng_cmd.c  $lib_depends
+	$CC $IFLAGS $CFLAGS -DSELF_TEST ${prereq/*.man / } -o $target -L. -lng$gflag  $last_ref
+
+ng_log::	ng_log.c	$lib_depends
+#	$(CC) -DSELF_TEST -I $(AST)/include/ast -I$(NG_SRC)/include $(CCFLAGS) $(mydir)/ng_log.c -o ng_log $lib_ref $last_ref
+	$CC $IFLAGS $CFLAGS -DSELF_TEST ${prereq/*.man / } -o $target -L. -lng$gflag  $last_ref
+
+ng_roll_log::	ng_roll_log.c	$lib_depends
+	$CC $IFLAGS $CFLAGS -DSELF_TEST ${prereq/*.man / } -o $target -L. -lng$gflag  $last_ref
+
+ng_ckpt::	ng_ckpt.c	$lib_depends
+	$CC $IFLAGS $CFLAGS -DSELF_TEST ${prereq/*.man / } -o $target -L. -lng$gflag  $last_ref
+
+ng_stats:	ng_stats.c	$lib_depends
+	$CC $IFLAGS $CFLAGS -DSELF_TEST ${prereq/*.man / } -o $target -L. -lng$gflag  $last_ref
+
+ng_sfio:	ng_sfio.c
+	$CC $IFLAGS $CFLAGS -DSELF_TEST ${prereq/*.man / } -o $target -L. -lng$gflag  $last_ref
+
+ng_sfdc:	ng_sfdc.c
+	$CC $IFLAGS $CFLAGS -DSELF_TEST ${prereq/*.man / } -o $target -L. $last_ref
+
+ng_pinkpages:	ng_pinkpages.c	$lib_depends
+	$CC $IFLAGS $CFLAGS -DSELF_TEST ${prereq/*.man / } -o $target -L. -lng$gflag  $last_ref
+
+ng_leader:	ng_leader.c	$lib_depends
+	$CC $IFLAGS $CFLAGS -DSELF_TEST ${prereq/*.man / } -o $target -L. -lng$gflag  $last_ref
+
+ng_env:	ng_env.c	$lib_depends
+	$CC $IFLAGS $CFLAGS -DSELF_TEST ${prereq/*.man / } -o $target -L. -lng$gflag  $last_ref
+
+ng_env2:	ng_env2.c	$lib_depends
+	$CC $IFLAGS $CFLAGS -DSELF_TEST ${prereq/*.man / } -o $target -L. -lng$gflag  $last_ref
+
+ng_rootnm::	ng_rootnm.c	$lib_depends
+	$CC $IFLAGS $CFLAGS -DSELF_TEST ${prereq/*.man / } -o $target -L. -lng$gflag  $last_ref
+
+ng_scramble::	ng_scramble.c	$lib_depends
+	$CC $IFLAGS $CFLAGS -DSELF_TEST ${prereq/*.man / } -o $target -L. -lng$gflag  $last_ref
+
+ng_sysctl:	ng_sysctl.c
+	$CC $IFLAGS $CFLAGS -DSELF_TEST ${prereq/*.man / } -o $target -L. -lng$gflag  $last_ref
+
+ng_sysctl2:	ng_sysctl2.c	$lib_depends
+	$CC $IFLAGS $CFLAGS -DSELF_TEST ${prereq/*.man / } -o $target -L. -lng$gflag  $last_ref
+
+ng_token:	ng_token.c	$lib_depends
+	$CC $IFLAGS $CFLAGS -DSELF_TEST ${prereq/*.man / } -o $target -L. -lng$gflag  $last_ref
+
+ng_perrorstr:	ng_perrorstr.c $lib_depends
+	$CC $IFLAGS $CFLAGS -DSELF_TEST ${prereq/*.man / } -o $target -L. -lng$gflag  $last_ref
+	#gcc -I /usr/common/ast/include/ast -I ../../include ng_perrorstr.c libng-g.a -L/usr/common/ast/lib -last -DSELF_TEST
+
+ng_spaceman_if:: ng_spaceman_if.c  $lib_depends
+	$CC $IFLAGS $CFLAGS -DSELF_TEST ${prereq/*.man / } -o $target -L. -lng$gflag  $last_ref
+
+ng_valid_ruser:	ng_valid_ruser.c	$lib_depends
+	echo $lib_depends
+	$CC $IFLAGS $CFLAGS -DSELF_TEST ${prereq/*.man / } -o $target -L. -lng$gflag  $last_ref
+
+ng_var_exp:	ng_var_exp.c	$lib_depends
+	echo $lib_depends
+	$CC $IFLAGS $CFLAGS -DSELF_TEST ${prereq/*.man / } -o $target -L. -lng$gflag  $last_ref
+
+ng_pp_expand:	pp_expand.c	$lib_depends
+	echo $lib_depends
+	$CC $IFLAGS $CFLAGS -DSELF_TEST ${prereq/*.man / } -o $target -L. -lng$gflag  $last_ref
+
+ng_fish:	ng_fish.c $lib_depends
+	$CC $IFLAGS $CFLAGS -DMAKE_TOOL ${prereq/*.man / } -o $target -L. -lng$gflag  $last_ref
+
+#stdfun.html : stdfun.xfm
+#	($(hpath); (cat $(gdoc)/scd.xfm stdfun.xfm | hfm stdin stdfun.html))
+#	mv stdfun.html /home/gecko/public_html/man
+
+ng_md5:	md5.c	$lib_depends
+	$CC $IFLAGS $CFLAGS -DSELF_TEST ${prereq/*.man / } -o $target -L. -lng$gflag  $last_ref
+

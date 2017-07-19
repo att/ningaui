@@ -1,0 +1,111 @@
+
+# ======================================================================== v1.0/0a157 
+#                                                         
+#       This software is part of the AT&T Ningaui distribution 
+#	
+#       Copyright (c) 2001-2009 by AT&T Intellectual Property. All rights reserved
+#	AT&T and the AT&T logo are trademarks of AT&T Intellectual Property.
+#	
+#       Ningaui software is licensed under the Common Public
+#       License, Version 1.0  by AT&T Intellectual Property.
+#                                                                      
+#       A copy of the License is available at    
+#       http://www.opensource.org/licenses/cpl1.0.txt             
+#                                                                      
+#       Information and Software Systems Research               
+#       AT&T Labs 
+#       Florham Park, NJ                            
+#	
+#	Send questions, comments via email to ningaui_support@research.att.com.
+#	
+#                                                                      
+# ======================================================================== 0a229
+
+
+#| WARNING: This file is maintained as source and distributed
+#|	with the potoroo package.  Any local changes to this 
+#|	file MUST be ported back into the source or they will
+#|	be lost with the next install of pkg-potoroo!
+#|	Local changes MUST be maintained in $NG_ROOT/site/cartulary_min
+#|	they will be added to the end of this file (thus overriding)
+#|	when ever this file is used. 
+#|
+#| this is a minimal cartulary needed only if $NG_ROOT/cartulary 
+#| does not exist.  It should allow the system to come up and 
+#| create a legit cartulary with pinkpages information saved in 
+#| narbalek.
+#|
+#| This file is also sourced in by several scripts (mostly the 
+#| narbalek/pinkpages scripts) that need to execute when a 
+#| cartulary is not available. They expect this to be installed
+#| in $NG_ROOT/lib.
+#|
+#|
+#| Mods:	25 Jun 2003 (sd) : Added mysql stuff
+#|		17 Sep 2004 (sd) : added narbalek port (mysql stuff 
+#|			pulled long ago.
+#|		16 Nov 2004 (sd) : Added nnsd stuff
+#|		30 Nov 2005 (sd) : added current ld_lib_path to our setting
+#|		22 Dec 2005 (sd) : added quotes round NG_ROOT def; pp_build expects it
+#|		16 Jan 2006 (sd) : added $NG_ROOT/common/ast/bin to path
+#|		28 Aug 2006 (sd) : General cleanup and prep for release.
+#|		15 Sep 2009 (sd) : Fixed the (internal) nnsd nodes list
+#| -------------------------------------------------------------------------------------------
+export NG_ROOT="${NG_ROOT:-/ningaui}"		# MUST use default from environ if its there
+export TMP=${TMP:-/ningaui/tmp}
+
+# ----------- TCP/UDP wellknown port values -------------------------
+
+# CAUTION: ng_logger_port must be DIFFERENT for each cluster that shares the same
+#		broadcast network.  Typically 29010 through 29020 are reserved
+#		for the logger port values. The value here is the default. It is
+#		recommended that the NG_ROOT/site/cartulary.min file override this
+#		variable setting it to something in the range of 29011-29029 so 
+#		that a collsion is avoided if another cluster is started on the same
+#		'broadcast net.'
+NG_LOGGER_PORT="29991"  #   Default because we must have something and dont want to collide
+
+export      NG_WOOMERA_PORT="29000"
+export           NG_RM_PORT="29002"
+export    NG_SENESCHAL_PORT="29004"
+export       NG_PARROT_PORT="29005"
+export     NG_SPACEMAN_PORT="29003"
+export       NG_CATMAN_PORT="29006"
+export        NG_NAWAB_PORT="29007"
+export        NG_SHUNT_PORT="29008"
+export      NG_EQUERRY_PORT="29009"
+# 29010 - 29030  reserved for NG_LOGGER_PORT (see above)
+export         NG_SRVM_PORT="29036"    
+export      NG_REPMGRS_PORT="29050"		# comm between rmbt and repmgr; rmreq sends to rmbt using NG_RM_PORT
+export        NG_TAPED_PORT="29051"
+export NG_TAPE_CHANGER_PORT="29052"
+export         NG_RMDB_PORT="29053"    
+export         NG_SPYG_PORT="29054"    
+export     NG_NARBALEK_PORT="29055"
+export         NG_NNSD_PORT="29056"   
+export      NG_D1AGENT_PORT="29057"
+export NG_NG_SENEFUNNEL_PORT="29058"
+
+				# setup should set NNSD_NODES in $NG_ROOT/site/cartulary_min!
+export NG_NNSD_NODES=""
+
+export MASTER_LOG=$NG_ROOT/site/log/master
+export LOG_ACK_NEEDED=0         # stops broadcast of log messages. a value of 3 should be set in pinkpages
+
+# even if these are deemed static and defined in stdfun rather than pp, they MUST be here as some things include 
+# the minimal cartulary files and not stdfun!
+export PRI_ALERT=1           
+export PRI_CRITICAL=2           # log message flags things
+export PRI_ERROR=3
+export PRI_INFO=6
+export PRI_NOTICE=5
+export PRI_WARN=4
+
+export NG_RM_DB=$NG_ROOT/site/rm/db		# needed so that rm_db can find ckpt files early
+
+export LD_LIBRARY_PATH=.:/usr/local/lib:/usr/common/ast/lib:$LD_LIBRARY_PATH
+export DYLD_LIBRARY_PATH=/usr/common/ast/lib
+export RUBYLIB="$NG_ROOT/lib:$RUBYLIB"
+
+export PATH=$NG_ROOT/bin:$NG_ROOT/common/bin:$NG_ROOT/common/ast/bin:/usr/common/bin:/usr/local/bin:/bin:/usr/bin:/usr/X11R6/bin:/usr/sbin:/sbin:.
+

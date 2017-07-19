@@ -1,0 +1,68 @@
+
+# ======================================================================== v1.0/0a157 
+#                                                         
+#       This software is part of the AT&T Ningaui distribution 
+#	
+#       Copyright (c) 2001-2009 by AT&T Intellectual Property. All rights reserved
+#	AT&T and the AT&T logo are trademarks of AT&T Intellectual Property.
+#	
+#       Ningaui software is licensed under the Common Public
+#       License, Version 1.0  by AT&T Intellectual Property.
+#                                                                      
+#       A copy of the License is available at    
+#       http://www.opensource.org/licenses/cpl1.0.txt             
+#                                                                      
+#       Information and Software Systems Research               
+#       AT&T Labs 
+#       Florham Park, NJ                            
+#	
+#	Send questions, comments via email to ningaui_support@research.att.com.
+#	
+#                                                                      
+# ======================================================================== 0a229
+
+
+#
+#	02 Sep 2004 - added narbalek stuff, cart.min now installed in lib
+#	05 Oct 2004 - pinkpages binary  and cartularyfiles formally deprecated and removed
+#	02 Aug 2005 (sd) - deprecated pp_bootstrap - removed from install list.
+#	04 Nov 2005 (sd) - added nnsd stuff
+#	28 Aug 2006 (sd) - added things to support the release of code
+#	05 Dec 2007 (sd) - Added support for cartulary.static; removed narbalek initialisation
+#
+# must be set in EVERY mkfile AND in panoptic.mk -- erk.
+NPROC  = 1
+MKSHELL = `echo ${GLMK_SHELL:-ksh}`		
+
+htmlcat=pinkpages
+
+PKG_PREFIX = ng_
+ALL =  ng_narbalek ng_nnsd
+
+SCDSRC = ng_ppget ng_ppset  nar_bootstrap  narbalek nar_get nar_set nar_map pp_build nnsd narreq
+INSTALL = $ALL ng_ppset ng_ppget ng_pp_build  \
+	ng_nar_tree_sanity \
+	ng_env ng_nar_set ng_nar_get ng_nar_bootstrap ng_nar_map ng_narreq 
+LIB_INSTALL = cartulary.min cartulary.static
+
+#	cartulary.min is the only base cartulary that we support now (cart.cluster files are deprecated)
+
+<$NG_SRC/panoptic.mk
+
+NUKE = $NUKE $ALL *man *.html
+
+lib_needs = $libng_si $libng 				# ningaui libs that we need (in search order)
+lib_depends = ${lib_needs:%=$NG_SRC/stlib/lib%.a} 	# full paths for the dependancy list
+lib_ref = -L$NG_SRC/stlib ${lib_needs:%=-l%} 		# references for (g)cc command
+# last_ref defined by panoptic to be the contrib libraries searched last 
+
+ng_narbalek:	narbalek.man narbalek.o  $lib_depends 
+	$CC $IFLAGS $CFLAGS ${prereq/*.man / } -o $target $lib_ref  $last_ref $SYS_SOCK_LIB
+
+ng_nnsd:	nnsd.man nnsd.o  $lib_depends 
+	$CC $IFLAGS $CFLAGS ${prereq/*.man / } -o $target $lib_ref  $last_ref $SYS_SOCK_LIB
+
+# -------------- functions that have self testing embedded mains -------------------------
+nar_sym:	nar_sym.c	$lib_depends
+	$CC -DSELF_TEST $IFLAGS $CFLAGS nar_sym.c -o $target $lib_ref  -L$AST/lib -last
+

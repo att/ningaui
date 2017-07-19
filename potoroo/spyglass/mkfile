@@ -1,0 +1,52 @@
+
+# ======================================================================== v1.0/0a157 
+#                                                         
+#       This software is part of the AT&T Ningaui distribution 
+#	
+#       Copyright (c) 2001-2009 by AT&T Intellectual Property. All rights reserved
+#	AT&T and the AT&T logo are trademarks of AT&T Intellectual Property.
+#	
+#       Ningaui software is licensed under the Common Public
+#       License, Version 1.0  by AT&T Intellectual Property.
+#                                                                      
+#       A copy of the License is available at    
+#       http://www.opensource.org/licenses/cpl1.0.txt             
+#                                                                      
+#       Information and Software Systems Research               
+#       AT&T Labs 
+#       Florham Park, NJ                            
+#	
+#	Send questions, comments via email to ningaui_support@research.att.com.
+#	
+#                                                                      
+# ======================================================================== 0a229
+
+
+#
+# Mods:
+#	28 Aug 1006 (sd) : Added things to support release of code
+
+NPROC  = 1
+MKSHELL = `echo ${GLMK_SHELL:-ksh}`		
+
+PKG_PREFIX = ng_
+ALL =  ng_spyglass
+
+htmlcat=spyglass
+
+SCDSRC = ng_spyglass ng_spy_ckdaemon ng_spy_ckfage ng_spy_ckfsfull ng_spy_wrapper ng_spy_cknet ng_sgreq ng_spy_ckdisk ng_sg_start ng_spy_ckmisc
+INSTALL = $ALL ng_spy_ckdaemon ng_spy_ckfage ng_spy_ckfsfull ng_spy_wrapper ng_spy_cknet ng_spy_ckmisc ng_sgreq ng_spy_ckdisk ng_sg_start
+CLASS_INSTALL =
+LIB_INSTALL = spyglass.cfg
+
+<$NG_SRC/panoptic.mk
+
+NUKE = $NUKE $ALL *man *.html
+
+lib_needs = $libng_si $libng 				# ningaui libs that we need (in search order)
+lib_depends = ${lib_needs:%=$NG_SRC/stlib/lib%.a} 	# full paths for the dependancy list
+lib_ref = -L$NG_SRC/stlib ${lib_needs:%=-l%} 		# references for (g)cc command
+
+ng_spyglass:	spy_netif.c spy_digest.c spyglass.man spyglass.c   $lib_depends 
+	$CC $IFLAGS $CFLAGS ${prereq/*.man / } -o $target $lib_ref  $last_ref $SYS_SOCK_LIB
+

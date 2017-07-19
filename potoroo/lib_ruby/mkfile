@@ -1,0 +1,49 @@
+
+# ======================================================================== v1.0/0a157 
+#                                                         
+#       This software is part of the AT&T Ningaui distribution 
+#	
+#       Copyright (c) 2001-2009 by AT&T Intellectual Property. All rights reserved
+#	AT&T and the AT&T logo are trademarks of AT&T Intellectual Property.
+#	
+#       Ningaui software is licensed under the Common Public
+#       License, Version 1.0  by AT&T Intellectual Property.
+#                                                                      
+#       A copy of the License is available at    
+#       http://www.opensource.org/licenses/cpl1.0.txt             
+#                                                                      
+#       Information and Software Systems Research               
+#       AT&T Labs 
+#       Florham Park, NJ                            
+#	
+#	Send questions, comments via email to ningaui_support@research.att.com.
+#	
+#                                                                      
+# ======================================================================== 0a229
+
+
+# Mods:
+#	14 Jan 2008 (sd) : new stuff
+#
+
+# must be set in EVERY mkfile AND in panoptic.mk -- erk.
+MKSHELL = `echo ${GLMK_SHELL:-ksh}`		
+NPROC = 1
+
+# these must be set before panoptic is pulled in
+#
+ALL = 
+INSTALL = 
+LIB_INSTALL = cartulary.rb ng_time.rb ng_log.rb broadcast.rb node_list.rb argbegin.rb ng_seneschal_if.rb
+
+htmlcat = lib_ruby
+NOPFX_SCDSRC = cartulary ng_time ng_log broadcast node_list argbegin
+
+< $NG_SRC/panoptic.mk
+
+NUKE = $NUKE  *.man  
+
+lib_needs = $libng 					# ningaui libs that we need (in search order)
+lib_depends = ${lib_needs:%=$NG_SRC/stlib/lib%.a} 	# full paths for the dependancy list
+lib_ref = -L$NG_SRC/stlib ${lib_needs:%=-l%} 		# references for (g)cc command
+

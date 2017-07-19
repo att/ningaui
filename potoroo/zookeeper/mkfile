@@ -1,0 +1,60 @@
+
+# ======================================================================== v1.0/0a157 
+#                                                         
+#       This software is part of the AT&T Ningaui distribution 
+#	
+#       Copyright (c) 2001-2009 by AT&T Intellectual Property. All rights reserved
+#	AT&T and the AT&T logo are trademarks of AT&T Intellectual Property.
+#	
+#       Ningaui software is licensed under the Common Public
+#       License, Version 1.0  by AT&T Intellectual Property.
+#                                                                      
+#       A copy of the License is available at    
+#       http://www.opensource.org/licenses/cpl1.0.txt             
+#                                                                      
+#       Information and Software Systems Research               
+#       AT&T Labs 
+#       Florham Park, NJ                            
+#	
+#	Send questions, comments via email to ningaui_support@research.att.com.
+#	
+#                                                                      
+# ======================================================================== 0a229
+
+
+
+# Zookeeper is a set of tools that can be used to keep track of 
+# cluster things.  The *_mon scripts peek out and generate 
+# messages to various parrot processes that are then relayed 
+# to remote monitors (w1kw processes) We do not yet distribute
+# W1KW; it will soon go into contrib. Parrot is used by other 
+# potoroo/ningaui tools, so it must be installed and activated. 
+# ----------------------------------------------------------------
+# converted to mk 6 Jul 2005
+#
+# Mods:
+#	28 Aug 2006 (sd) : Added stuff to support code release
+
+# must be set in EVERY mkfile AND in panoptic.mk 
+MKSHELL = `echo ${GLMK_SHELL:-ksh}`		
+
+# these must be set before panoptic is pulled in
+#
+INSTALL = ng_parrot ng_zoo ng_argus_map ng_yapp ng_zoo_alert ng_z_dfmon ng_ng_zoo ng_z_psmon ng_z_rmmon ng_z_shuntmon ng_z_snmon
+ALL = ng_parrot
+SCDSRC = ng_zoo argus_map yapp
+
+htmlcat=zoo
+
+< $NG_SRC/panoptic.mk
+
+NUKE = $NUKE  $ALL *.man
+
+lib_needs = $libng $libng_si 				# ningaui libs that we need (in search order)
+lib_depends = ${lib_needs:%=$NG_SRC/stlib/lib%.a} 	# full paths for the dependancy list
+lib_ref = -L$NG_SRC/stlib ${lib_needs:%=-l%} 		# references for (g)cc command
+#last_ref now defined in panoptic.mk
+
+ng_parrot:	parrot.man parrot.o
+	$CC $IFLAGS $CFLAGS ${prereq/*.man / } -o $target $lib_ref $last_ref $SYS_SOCK_LIB
+

@@ -1,0 +1,57 @@
+
+# ======================================================================== v1.0/0a157 
+#                                                         
+#       This software is part of the AT&T Ningaui distribution 
+#	
+#       Copyright (c) 2001-2009 by AT&T Intellectual Property. All rights reserved
+#	AT&T and the AT&T logo are trademarks of AT&T Intellectual Property.
+#	
+#       Ningaui software is licensed under the Common Public
+#       License, Version 1.0  by AT&T Intellectual Property.
+#                                                                      
+#       A copy of the License is available at    
+#       http://www.opensource.org/licenses/cpl1.0.txt             
+#                                                                      
+#       Information and Software Systems Research               
+#       AT&T Labs 
+#       Florham Park, NJ                            
+#	
+#	Send questions, comments via email to ningaui_support@research.att.com.
+#	
+#                                                                      
+# ======================================================================== 0a229
+
+
+# converted to mk 10 Jul 2005
+#
+# Mods:
+#	28 Aug 2006 (sd) : Added stuff for release
+
+MKSHELL = `echo ${GLMK_SHELL:-ksh}`		
+
+# these must be set before panoptic is pulled in
+#
+INSTALL = ng_srvmgr ng_smreq
+ALL =  ng_srvmgr
+SCDSRC = 
+
+htmlcat=srvmgr
+< $NG_SRC/panoptic.mk
+
+NUKE = $NUKE ng_srvmgr srvmgr.c
+
+lib_needs = $libng_si $libng 				# ningaui libs that we need (in search order)
+lib_depends = ${lib_needs:%=$NG_SRC/stlib/lib%.a} 	# full paths for the dependancy list
+lib_ref = -L$NG_SRC/stlib ${lib_needs:%=-l%} 		# references for (g)cc command
+#last_ref  now defined in panoptic.mk
+
+# ----------- 
+#	v3 service manager implements a distributed process tree and a different method of managing services
+#   srvm3.* things are used to support this.  It depends heavily on the dptree functions in nglib.a.
+#   node_name.c is left over from the original versions and was modified to support stand-alone compilation
+#   rather than inclusion at compile time. 
+#
+#  tricky dependancies: all things before srvm3.man are removed as $prereq is expanded in the recipe!
+ng_srvmgr::	srvm3.h srvm3.man srvm3.o node_name.o  $lib_depends 
+	$CC $IFLAGS $CFLAGS ${prereq/*.man / } -o $target $lib_ref  $last_ref $SYS_SOCK_LIB
+

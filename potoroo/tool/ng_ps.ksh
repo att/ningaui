@@ -1,0 +1,171 @@
+#!/ningaui/bin/ksh
+# ======================================================================== v1.0/0a157 
+#                                                         
+#       This software is part of the AT&T Ningaui distribution 
+#	
+#       Copyright (c) 2001-2009 by AT&T Intellectual Property. All rights reserved
+#	AT&T and the AT&T logo are trademarks of AT&T Intellectual Property.
+#	
+#       Ningaui software is licensed under the Common Public
+#       License, Version 1.0  by AT&T Intellectual Property.
+#                                                                      
+#       A copy of the License is available at    
+#       http://www.opensource.org/licenses/cpl1.0.txt             
+#                                                                      
+#       Information and Software Systems Research               
+#       AT&T Labs 
+#       Florham Park, NJ                            
+#	
+#	Send questions, comments via email to ningaui_support@research.att.com.
+#	
+#                                                                      
+# ======================================================================== 0a229
+
+
+#!/ningaui/bin/ksh
+# Mnemonic:	ng_ps
+# Abstract:	A generic interface to ps that returns the same fields regardless of 
+#		os, and so our stuff does not have to guess at options
+#		
+# Date:		4 July 2003
+# Author:	E. Scott Daniels
+# ---------------------------------------------------------------------------------
+
+
+# NOTE:
+#	This script does NOT use any cartulary variables, or standard functions
+#	They are left commented out here for emphisis.  It is completely UNSAFE
+#	to include either of them.
+#CARTULARY=${NG_CARTULARY:-$NG_ROOT/cartulary}     # get standard configuration file
+#. $CARTULARY
+
+#STDFUN=${NG_STDFUN:-$NG_ROOT/lib/stdfun}  # get standard functions
+#. $STDFUN
+
+
+# -------------------------------------------------------------------
+ustring="[-c -p]] [-s] [-v]"
+command_only=0
+argv0=$0
+list="user pid ppid time start"		# we add command arg based on o/s type; default list of stuff
+
+while [[ $1 = -* ]]
+do
+	case $1 in 
+		-c)	command_only=1;;
+		-p)	add_pid="-o pid";;		# add process id to command/args output
+		-s)	list="user pid ppid";;		# small list; time and start time are omitted to give a constant output over time
+		-v)	verbose=1;;
+		--man)				# --man can safely be executed from the cmd line if we assume they properly set NG_ROOT
+			(export XFM_IMBED=$NG_ROOT/lib; tfm $argv0 stdout .im $XFM_IMBED/scd_start.im : | ${PAGER:-more})
+			exit 1;;
+		-\?)	usage; exit 1;;
+		-*)	error_msg "unrecognised option: $1"
+			usage;
+			exit 1
+			;;
+	esac
+
+	shift
+done
+
+uname -s |read system junk
+if [[ $command_only -gt 0 ]]
+then
+	case $system in
+        FreeBSD)      	psopts="-xaw $add_pid -o '"command"'"
+                        ;;
+        Darwin)         psopts="-xaw $add_pid -o '"command"'"
+                        ;;
+        Linux)        	 psopts="-ew $add_pid -o '"cmd"'"
+                        ;;
+        IRIX*)        	psopts="-e $add_pid -o '"args"'"
+                        ;;
+        Sun*)        	psopts="-e $add_pid -o '"args"'"
+                        ;;
+        *)              psopts=""
+                        ;;
+	esac
+else
+	case $system in
+        FreeBSD)      	psopts='-xaww -o "'"$list command"'"'
+                        ;;
+        Darwin)         psopts='-xaw -o "'"$list command"'"'
+                        ;;
+        Linux)        	 psopts='-ew -o "'"$list cmd"'"'
+                        ;;
+        IRIX*)      	psopts='-e -o "'"${list/start/stime} args"'"'
+                        ;;
+        Sun*)      	psopts='-e -o "'"${list/start/stime} args"'"'
+                        ;;
+
+        *)              psopts=""
+                        ;;
+	esac
+fi
+
+eval ps $psopts
+exit $?
+
+
+
+/* ---------- SCD: Self Contained Documentation ------------------- 
+&scd_start
+&doc_title(ng_ps:Ningaui interface to ps command)
+
+&space
+&synop	ng_ps [-c [-p]] [-s] [-v]
+
+&space
+&desc	This script provides a simple interface to the ps command regardless of 
+	the system on which it is run.  The script runs the system ps command 
+	and generates these six data columns in the order listed:
+&space
+&beglist
+&item	user name
+&item	process id
+&item	parent process id
+&item	cpu time
+&item	process start time
+&item	process commands and arguments
+&endlist
+
+&opts	Thes options are recognised when placed on the command line:
+&begterms
+&term	-c : Geneate a list of command and arguments only. 
+&space
+&term	-p : Add the process ID to the output when the -c option has been selected. If the 
+	-c option is not supplied, then this option is ignored. 
+&space
+&term	-s : Short list.  When this option is given, the time and start time fields are not
+	presented.  The intent is that the output of the command does not vary over time for.
+	
+&endterms
+
+
+&space
+&exit	The exit code generated is that which was generated by the underlying ps command.
+
+&space
+&see	ps(1)
+
+&space
+&mods
+&owner(Scott Daniels)
+&lgterms
+&term	04 Jul 2003 (sd) : Thin end of the wedge.
+&term 	20 Jul 2003 (sd) : Support irix too.
+&term	12 Aug 2003 (sd) : Added ww option to darwin list to prevent width truncation
+&term	04 Sep 2003 (sd) : Modified to run on the sun.
+&term	11 Jan 2005 (sd) : Added w option to FreeBSD list
+&term	17 Mar 2005 (sd) : Completely removed all ningaui oriented references. Using 
+		--man from the command line is the only ningaui thing left and will 
+		fail if the user has not set NG_ROOT.  The manpage ability was left
+		as it's dependance on ningaui things does not affect real operation
+		of the script.
+&term	20 Sep 2006 (sd) : Fixed problem with --man.
+&term	23 Sep 2008 (sd) : Added -p option.
+&endterms
+
+&scd_end
+------------------------------------------------------------------ */

@@ -1,0 +1,40 @@
+
+# ======================================================================== v1.0/0a157 
+#                                                         
+#       This software is part of the AT&T Ningaui distribution 
+#	
+#       Copyright (c) 2001-2009 by AT&T Intellectual Property. All rights reserved
+#	AT&T and the AT&T logo are trademarks of AT&T Intellectual Property.
+#	
+#       Ningaui software is licensed under the Common Public
+#       License, Version 1.0  by AT&T Intellectual Property.
+#                                                                      
+#       A copy of the License is available at    
+#       http://www.opensource.org/licenses/cpl1.0.txt             
+#                                                                      
+#       Information and Software Systems Research               
+#       AT&T Labs 
+#       Florham Park, NJ                            
+#	
+#	Send questions, comments via email to ningaui_support@research.att.com.
+#	
+#                                                                      
+# ======================================================================== 0a229
+
+
+# install_confg removed 4/18 -- dont need /ningaui/scripts stuff any more 
+#	27 Nov 2004 (sd) - Removed ldr things from install list	
+#	12 May 2005 (sd) - Setme and mac_addr.db removed from install list
+#	28 Jun 2005 (sd)  - conversion to mk
+#			These things were deprecated -- see Makefile for history:
+#				mac.db
+#				ldr_announce, ldr_rcv
+#	25 Aug 2006 (sd) : prep for software release (HBD_RMH)
+# --------------------------------------------------------------------------------
+
+SCDSRC = 
+ALL = 
+INSTALL = ng_node_stat ng_rcv_node_stat ng_node_summary
+
+< $NG_SRC/panoptic.mk
+

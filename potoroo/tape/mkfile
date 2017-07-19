@@ -1,0 +1,162 @@
+
+# ======================================================================== v1.0/0a157 
+#                                                         
+#       This software is part of the AT&T Ningaui distribution 
+#	
+#       Copyright (c) 2001-2009 by AT&T Intellectual Property. All rights reserved
+#	AT&T and the AT&T logo are trademarks of AT&T Intellectual Property.
+#	
+#       Ningaui software is licensed under the Common Public
+#       License, Version 1.0  by AT&T Intellectual Property.
+#                                                                      
+#       A copy of the License is available at    
+#       http://www.opensource.org/licenses/cpl1.0.txt             
+#                                                                      
+#       Information and Software Systems Research               
+#       AT&T Labs 
+#       Florham Park, NJ                            
+#	
+#	Send questions, comments via email to ningaui_support@research.att.com.
+#	
+#                                                                      
+# ======================================================================== 0a229
+
+
+
+# Mods:
+#	22 Aug 2005 (asm) :	converted from nmake (first pass)
+#	21 Sep 2005 (sd)  : 	removed -posix flag from CFLAGS; causes some clib prototypes not to be included.
+#	23 May 2006 (sd)  :	fixed wrseg dependancy list
+#	28 Aug 2006 (sd) : 	Added stuff for software release
+#	28 Mar 2007 (sd) :  added things to the export list that were missing (reap1, tp_pool_cuscuss...)
+
+MKSHELL = `echo ${GLMK_SHELL:-ksh}`
+
+ALL =		\
+		ng_cpio_vfy \
+		ng_rdseg \
+		ng_tape \
+		ng_tape_vet \
+		ng_tp_tcreq \
+		ng_tp_changer \
+		ng_wrseg \
+		ng_wrvol
+
+INSTALL =	\
+		ng_tape_vet \
+		ng_cpio_vfy \
+		ng_rdseg \
+		ng_wrseg \
+		ng_wrvol \
+		ng_tape \
+		ng_tp_cstart \
+		ng_tp_dump \
+		ng_tp_dump_date \
+		ng_tp_dump_pool \
+		ng_tp_eject \
+		ng_tp_genseg \
+		ng_tp_identify \
+		ng_tp_jobid \
+		ng_tp_library \
+		ng_tp_makecpio \
+		ng_tp_mkdstjob \
+		ng_tp_n32a \
+		ng_tp_pool_cuscus \
+		ng_tp_poolinfo \
+		ng_tp_qexplode \
+		ng_tp_reap1 \
+		ng_tp_reaper \
+		ng_tp_report \
+		ng_tp_sched_1 \
+		ng_tp_sched_2 \
+		ng_tp_sendcpio \
+		ng_tp_changer \
+		ng_tp_summary \
+		ng_tp_sync \
+		ng_tpreq \
+		ng_tp_vet \
+		ng_tp_autovet \
+		ng_tp_autodup \
+		ng_tp_loadvol \
+		ng_tp_tfrag_comb \
+		ng_tp_getid \
+		ng_tp_setid \
+		ng_tp_config \
+		ng_tp_vet \
+		ng_tp_writecpio
+
+SCDSRC =	\
+		ng_cpio_vfy \
+		ng_rdseg \
+		ng_tape \
+		ng_tape_vet \
+		ng_tp_changer \
+		ng_tp_cstart \
+		ng_tp_dump \
+		ng_tp_dumpfeeds \
+		ng_tp_dump_date \
+		ng_tp_dump_pool \
+		ng_tp_identify \
+		ng_tp_jobid \
+		ng_tp_library \
+		ng_tp_makecpio \
+		ng_tp_mkdstjob \
+		ng_tp_pool_cuscus \
+		ng_tp_poolinfo \
+		ng_tp_sched_1 \
+		ng_tp_sched_2 \
+		ng_tp_sendcpio \
+		ng_tpreq \
+		ng_tp_vet \
+		ng_tp_writecpio \
+		ng_wrvol
+
+htmlcat = tape
+
+GLMK_BIND_AT_LOAD = 0
+
+< $NG_SRC/panoptic.mk
+
+NUKE = $NUKE $ALL
+
+# ningaui libs that we need (in search order)
+lib_needs = $libng_si $libng
+
+# full paths for the dependancy list
+lib_depends = ${lib_needs:%=$NG_SRC/stlib/lib%.a}
+
+# references for (g)cc command
+lib_ref = -L$NG_SRC/stlib ${lib_needs:%=-l%} $SFIO_LIBS $AST_LIBS
+
+ng_wrvol:	wrvol.man wrvol.o tapelib.o
+		$CC $IFLAGS $CFLAGS -o $target ${prereq/*.man / } \
+		$lib_ref $SYS_SOCK_LIB $SYS_LIB
+
+ng_wrseg:	wrseg.man wrseg.o tapelib.o
+		$CC $IFLAGS $CFLAGS -o $target ${prereq/*.man / } \
+		$lib_ref $SYS_SOCK_LIB $SYS_LIB
+
+ng_rdseg:	rdseg.man rdseg.o tapelib.o
+		$CC $IFLAGS $CFLAGS -o $target ${prereq/*.man / } \
+		$lib_ref $SYS_SOCK_LIB $SYS_LIB
+
+ng_tape:	tape.man tape.o
+		$CC $IFLAGS $CFLAGS -o $target ${prereq/*.man / } \
+		$lib_ref $SYS_SOCK_LIB $SYS_LIB
+
+ng_cpio_vfy:	cpio_vfy.man cpio_vfy.o tapelib.o
+		$CC $IFLAGS $CFLAGS -o $target ${prereq/*.man / } \
+		$lib_ref $SYS_SOCK_LIB $SYS_LIB
+
+ng_tape_vet:	tape_vet.man tape_vet.o tapelib.o
+		$CC $IFLAGS $CFLAGS -o $target ${prereq/*.man / } \
+		$lib_ref $SYS_SOCK_LIB $SYS_LIB
+
+ng_tp_tcreq:	tp_tcreq.man tp_tcreq.o
+		$CC $IFLAGS $CFLAGS -o $target ${prereq/*.man / } \
+		$lib_ref $SYS_SOCK_LIB $SYS_LIB
+
+ng_tp_changer:	tp_changer.man tp_changer.o tape_mlib.o getfields.o
+		$CC $IFLAGS $CFLAGS -o $target ${prereq/*.man / } \
+		$lib_ref $SYS_SOCK_LIB $SYS_LIB
+

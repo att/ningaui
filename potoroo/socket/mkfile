@@ -1,0 +1,71 @@
+
+# ======================================================================== v1.0/0a157 
+#                                                         
+#       This software is part of the AT&T Ningaui distribution 
+#	
+#       Copyright (c) 2001-2009 by AT&T Intellectual Property. All rights reserved
+#	AT&T and the AT&T logo are trademarks of AT&T Intellectual Property.
+#	
+#       Ningaui software is licensed under the Common Public
+#       License, Version 1.0  by AT&T Intellectual Property.
+#                                                                      
+#       A copy of the License is available at    
+#       http://www.opensource.org/licenses/cpl1.0.txt             
+#                                                                      
+#       Information and Software Systems Research               
+#       AT&T Labs 
+#       Florham Park, NJ                            
+#	
+#	Send questions, comments via email to ningaui_support@research.att.com.
+#	
+#                                                                      
+# ======================================================================== 0a229
+
+
+#
+# converted to nmake 18 Nov 1997
+# converted to mk 27 Jun 2005
+# Mods:	27 Aug 2006 (sd) : added things to support code release
+#
+
+# must be defined in every mkfile - erk
+MKSHELL = `echo ${GLMK_SHELL:-ksh}`		
+
+# this is set in panopitc, but we need it before we get panoptic
+gflag=`echo ${GLMK_GFLAG:--g}`	
+
+NPROC = 1
+PKG_ID = ng_
+
+ALL = libraries
+INSTALL= 
+SCDSRC= siinit sicbreg siclear siclose siconnec simcast siopen sipoll sisendt sisendu siwait
+htmlcat = socket
+
+<$NG_SRC/panoptic.mk
+NUKE = $NUKE *.o *.a *.man
+
+silib_src = sibldpol sicbreg sicbstat siclose siconnec siestabl sigetadd siinit sinew sinewses siopen \
+	sipoll sircv sireinit sisend sisendt sisendu sisetsig sishutdo sisignal siterm siwait siprintf \
+	sigetname silisten sidump simcast siclear sigetlfd sitrash
+
+libraries:N:	lib$libng_si.a
+
+lib$libng_si.a(%.o):N:    %.o
+lib$libng_si.a:   ${silib_src:%=lib$libng_si.a(%.o)}
+	(
+	eval names=\$'{newprereq//'lib$libng_si.a'?/}'			# strip lib name and ( 
+	ar r lib$libng_si.a ${names//\)/} && rm ${names//\)/}	# archive and remove after ditching trailing ) from each name
+	)
+
+lib_needs = $libng_si $libng sfio                            # ningaui libs that we need (in search order)
+lib_depends = ${lib_needs:%=$NG_SRC/stlib/lib%.a}       # full paths for the dependancy list
+lib_ref = -L$NG_SRC/stlib ${lib_needs:%=-l%} 		# references for (g)cc command
+
+install:V: libraries
+	ranlib *.a  2>/dev/null ||true
+	cp -f -p *.a $NG_SRC/stlib  2>/dev/null ||true
+	cp -f -p ng_socket.h $NG_SRC/include  2>/dev/null ||true
+
+precompile: install
+

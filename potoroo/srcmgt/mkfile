@@ -1,0 +1,42 @@
+
+# ======================================================================== v1.0/0a157 
+#                                                         
+#       This software is part of the AT&T Ningaui distribution 
+#	
+#       Copyright (c) 2001-2009 by AT&T Intellectual Property. All rights reserved
+#	AT&T and the AT&T logo are trademarks of AT&T Intellectual Property.
+#	
+#       Ningaui software is licensed under the Common Public
+#       License, Version 1.0  by AT&T Intellectual Property.
+#                                                                      
+#       A copy of the License is available at    
+#       http://www.opensource.org/licenses/cpl1.0.txt             
+#                                                                      
+#       Information and Software Systems Research               
+#       AT&T Labs 
+#       Florham Park, NJ                            
+#	
+#	Send questions, comments via email to ningaui_support@research.att.com.
+#	
+#                                                                      
+# ======================================================================== 0a229
+
+
+# mkfile: 27 June 2005
+# Mods:
+#	28 Aug 2006 (sd) : added things to support release.
+
+MKSHELL=ksh
+
+PKG_PREFIX=ng_
+htmlcat = srcmgt
+
+INSTALL = ng_sm_fetch ng_sm_replace ng_sm_new ng_sm_stat ng_sm_tag ng_sm_mkenv ng_sm_mkpkg \
+	ng_sm_build ng_sm_del ng_sm_autobuild ng_sm_publish ng_sm_history ng_sm_mkpkg_ast ng_make\
+	ng_sm_copyright ng_sm_fingerprint ng_sm_build_ast
+
+<$NG_SRC/panoptic.mk
+
+precompile:V:
+	cp ng_make.ksh $NG_SRC/.bin/ng_make.ksh
+
