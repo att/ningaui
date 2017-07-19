@@ -327,6 +327,12 @@ do
 	fi
 done
 
+if ! which yacc >/dev/null 2>&1
+then
+	echo "yacc not found; install yacc or GNU bison"
+	exit 1
+fi
+
 if [[ ${PWD##*/} == ningaui ]]		# if we are sitting in the ningaui directory; assume pwd is where src is
 then
 	d=${PWD%/*}			# parent directory is the base 
