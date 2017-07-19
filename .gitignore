@@ -3,3 +3,5 @@
 *.so
 *.ps
 *.pdf
+__panoptic.mk
+HDEPEND*
