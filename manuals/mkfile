@@ -1,0 +1,132 @@
+
+# ======================================================================== v1.0/0a157 
+#                                                         
+#       This software is part of the AT&T Ningaui distribution 
+#	
+#       Copyright (c) 2001-2009 by AT&T Intellectual Property. All rights reserved
+#	AT&T and the AT&T logo are trademarks of AT&T Intellectual Property.
+#	
+#       Ningaui software is licensed under the Common Public
+#       License, Version 1.0  by AT&T Intellectual Property.
+#                                                                      
+#       A copy of the License is available at    
+#       http://www.opensource.org/licenses/cpl1.0.txt             
+#                                                                      
+#       Information and Software Systems Research               
+#       AT&T Labs 
+#       Florham Park, NJ                            
+#	
+#	Send questions, comments via email to ningaui_support@research.att.com.
+#	
+#                                                                      
+# ======================================================================== 0a229
+
+
+# mkfile: 4/12/06
+# this directory is populated by running mk manpages  in the parent directory.
+# all source directories supported by that mkfile are traversed and the `mk all.html`
+# command is executed.  The html files are coppied to ./html and generated text
+# copies of the man pages are copied to the ./text directory. The only source
+# saved in cvs from this directory is the mkfile.
+
+MKSHELL = ksh
+PKG_PREFIX=ng_
+
+# for each listed in LISTING, there must be an XXX_headers rule that generates XXX.hdr
+LISTINGS = copybooks
+INSTALL = 
+
+<$NG_SRC/panoptic.mk
+
+# must be after panoptic include
+PUBLIC_HTML_DIR= $PKG_ROOT/manuals
+
+precompile:V:
+	for x in text html
+	do
+		if [[ ! -d $x ]]
+		then
+			mkdir -p $x
+		fi
+	done
+
+install:V:	index
+	if [[ ! -d $PUBLIC_HTML_DIR ]]
+	then
+		mkdir $PUBLIC_HTML_DIR
+		echo "made public dir: $PUBLIC_HTML_DIR"
+	fi
+	for d in $LISTINGS
+	do
+		if ls $d/*html >/dev/null  2>&1
+		then
+			if [[ ! -d $PUBLIC_HTML_DIR/$d ]]
+			then
+				mkdir $PUBLIC_HTML_DIR/$d
+			fi
+			cp $d/*.html $PUBLIC_HTML_DIR/$d
+		fi
+		if ls $d/*txt >/dev/null  2>&1
+		then
+			cp $d/*.txt $PUBLIC_HTML_DIR/$d
+		fi
+	done
+	cp html/*.html $PUBLIC_HTML_DIR
+
+index:V: headers ${LISTINGS:%=%_headers}
+	export XFM_IMBED=$NG_SRC/include
+	for d  in $LISTINGS
+	do
+		if ls $d/*html >/dev/null  2>&1
+		then
+			ksh $NG_SRC/potoroo/tool/genindex.ksh -d $d -t "Source Listings: $d" -l 50 -h ./$d.hdr
+		fi
+	done
+	ksh $NG_SRC/potoroo/tool/genindex.ksh -d html -t "Ningaui Manual Pages" -l 50 -h ./headers 
+	
+# headers used by the genindex script 
+headers:V:
+	cat <<endKat >headers
+	# header definitions for the documenation HTML page generator
+	# order is important; catigories displayed in the order listed
+	# first token is the html catigory specified in a directory's man page; res is the description 
+	# that is placed in the index as the section title
+	lib Potoroo -- C Library Functions (libng-g.a)
+	lib_ruby Potoroo -- Ruby Module Library
+	tool Potoroo --  Tools and Utilities
+	repmgr Potoroo --  Replication Manager
+	jobmgt Potoroo --  Job Management
+	pinkpages Potoroo --  Narbalek and Pinkpages
+	spyglass Potoroo -- Spyglass
+	tape Potoroo -- Tape Management
+	socket Potoroo -- Socket Interface C Library (libng_si-g.a)
+	zoo Potoroo --  Zookeeper Things
+	cluster Potoroo --  Cluster Management
+	misc Uncatigorised Documents
+	endKat
+
+# headers for copybook listings
+copybooks_headers:V:
+	cat <<endKat >copybooks.hdr
+	abm Abm
+	af58 Af58
+	bbgw Bbgw
+	cmiu Cmiu
+	emi Emi
+	misc Misc
+	rips Rips
+	sbs Sbs
+	sdn Sdn
+	sdnmps Sdnmps
+	snack Snack
+	sur Sur
+	thrifty Thrifty
+	tif Tif
+	tmiu Tmiu
+	tmps Tmps
+	tolrec Tolrec
+	ub Ub
+	vtns Vtns
+	vtnsmps Vtnsmps
+	wefos Wefos
+	endKat
