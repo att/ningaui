@@ -1,0 +1,520 @@
+.** -----------------------------------------------------------
+.** Mnemonic: scd_start
+.** Abstract: This is the setup file that should be included 
+.**           when formatting self contained documentation from
+.**           a source file.
+.** Date:     24 March 2001
+.** Author:   E. Scott Daniels
+.** -----------------------------------------------------------
+
+.** ----------------------------------------------------------
+.** must define the imbed directory; get from environment if 
+.** not defined on command line or somesuch
+.** ----------------------------------------------------------
+
+.if ! imbed
+ .gv e XFM_IMBED imbed
+.fi
+
+.im &{imbed}/startup.im 
+
+
+.** ----- generalised setup --------
+.in .5i
+.hn off
+.dh 1 m=.25i i=0 s=1
+.dh 2 m=.5i i=0 s=0
+.dh 3 m=.5i i=0 s=0
+.dh 4 m=.5i i=0 s=0
+.dv textsize 10
+
+.**  ---- convenience things ----------------------------------
+.dv n Ningaui
+.dv ng Ningaui
+
+.**  ---- not yet developed in ningaui, used in gecko
+.dv getmsg $1
+
+.**  ---- section macros --------------------------------------
+
+
+.** some require differences for tfm
+.if tfm
+	.dv desc ^&uindent .sp 1 .h1 Description ^: ^&indent
+	.dv synop  .if ! _synop ^: .dv _synop 1 ^: ^&uindent .sp 1 .h1 Synopsis ^: ^&indent .ei .br .fi
+	.dv name ^&uindent .sp 1 .tu 0  .h1 Name  ^: ^&indent .ev ^^^&xtitle
+.ei
+	.dv desc .if _synop ^: ^</tt^> .fi  ^&uindent .sp 1 .h1 Description ^: ^&indent
+	.dv synop .if ! _synop ^: .dv _synop 1 ^: ^&uindent .sp 1 .h1 Synopsis ^: ^&indent ^<tt^> .ei .br .fi
+	.dv name ^<title^> .ev ^^^&xtitle ^</title^>^</head^>^<body link=blue vlink=#505050^> .h1 Name ^: ^&indent  .ev ^^^&xtitle
+.fi
+
+.dv cmeth ^&uindent .sp 1 .h1 Class Methods ^:  ^&indent
+.dv cconst ^&uindent .sp 1 .h1 Class Constants ^:  ^&indent
+.dv imeth ^&uindent .sp 1 .h1 Instance Methods ^:  ^&indent
+.dv construct ^&uindent .sp 1 .h1 Constructor ^: ^&indent
+
+.dv errors ^&uindent .sp 1 .h1 Errors ^:  ^&indent
+.dv examp ^&uindent .sp 1 .h1 Examples ^: ^&indent
+.dv exit ^&uindent .sp 1 .h1 Exit ^: ^&indent
+.dv files ^&uindent .sp 1 .h1 Files ^: ^&indent
+.dv mods ^&uindent .sp 1 .h1 Modifications  ^: ^&indent
+.dv opts ^&uindent .sp 1 .h1 Options ^: ^&indent
+.dv parms ^&uindent .sp 1 .h1 Parameters ^: ^&indent
+.dv notes ^&uindent .sp 1 .h1 Notes ^: ^&indent
+.dv owner Code is currently maintained by^: &stress($1) .sp 1
+.dv return ^&uindent .sp 1 .h1 Return Values ^: ^&indent
+.dv see ^&uindent .sp 1 .h1 See Also ^: ^&indent
+.dv subcat .sp 1 .h3
+
+.** title and utitle are deprecated and exist here only 
+.** as support for old Gecko things. DO NOT USE THEM!
+.** utitle set to eval to nothing so if user puts it after the name
+.** invocation, it will have no effect.  New docs do not need to 
+.** use the name macro, just the doc_title() macro.
+.dv utitle ` `
+.dv title .dv xtitle 
+
+.** this is a bit tricky as this defines xtitle which is used
+.** by the name macro which we invoke.
+.** syntax: &doc_title(name:short description)
+.** name is assigned to the variables this/This as an ital word
+.** cool me thinks!
+.dv doc_title .dv xtitle $1 - $2 ^: .dv this ^&ital($1) ^: .dv This ^&Ital($1) ^:  ^&name
+
+.** ------ other necessary things -----
+.dv secondary .** this is a secondary manpage if this tag is included
+.dv space .sp 1
+.dv break .br
+.dv begcent .bc start
+.dv endcent .bc end
+.** because lgterms are LARGE, indent has to be forced by user
+.dv begterms .dv indented 1 ^: ^&indent .bd 1.25i 
+.dv lgterms .dv indented 0 ^: .bd 2i 
+.dv smterms .dv indented 1 ^: ^&indent .bd .5i 
+.dv endterms .ed .if ^[ ^&indented ] ^: ^&uindent .fi .dv indented 0 ^:
+.dv term .di
+.dv beglitb .nf
+.dv endlitb .fo
+.** 			these next two are for compat with gecko manpages
+.dv litblkb .nf
+.dv litblke .fo
+.dv manpage $1
+
+.gv Date
+.if hfm
+  .dv scd_end ^&uindent .in 0 .ll +.25i .ln .gv Date Revised ^&_date | XFM with scd_start v1.2/01258 .qu
+.ei
+  .dv scd_end ^&uindent .in 0 .ll +.25i .ln .gv Date Printed ^&_date | XFM with scd_start v1.2/01258 .qu
+.fi
+.dv beghsect .if ! tfm ^:
+.dv endhsect .fi
+
+
+
+.** ------------ compiler specific other things ------
+.if hfm
+	.dv nocolor 1
+	.** browsers automatically indent lists so we dont have to
+	.dv beglist .bl
+	.dv endlist .el
+	.** .dv indent .dv indented 1 ^: .bl ^:
+	.** .dv uindent .dv indented 0 ^: .el 
+	.dv indent .bl ^: ^<div^>
+	.dv uindent .el ^</div^>
+	.dv item    .li
+	.dv begbox .bx start
+	.dv endbox .bx end
+	.** skip_header allows us to setup the header when &title is used.
+	.dv skip_header
+        .dv seelink ^&dlink($1.$2.html:$2[$1])
+.ei
+	.if tfm
+		.** .dv indent .dv indented 1  ^: .ll -.5i .in +.5i
+		.** .dv uindent .dv indented 0 ^: .in -.5i .ll +.5i
+		.dv indent  .ll -.5i .in +.5i
+		.dv uindent .in -.5i .ll +.5i
+		.dv beglist ^&indent .bl
+		.dv endlist .el ^&uindent
+		.dv begbox .ln
+		.dv endbox .ln
+		.dv item    .li
+		.dv seelink $2^($1^)
+	.fi
+.fi
+
+.st &textsize
+
+.** --- skip our scd stuff to get users junk -------
+.jm thats-all-folks
+
+
+If you see this, then something very wrong is happening and you should
+let me know about it.  Thanks, Scott
+
+.** ------------- SCD Stuff -----------------------------------------
+.** our scd stuff goes here -- kind of like a self compiling compiler!
+.** make scd_start.html should work like on any other source file!
+.**
+&scd_start
+&doc_title(scd_start - Self Contained Documentation Setup and Macros)
+
+&space
+&desc	The self contained documentation (SCD) section of a source 
+	file contains all of the information that is needed to 
+	generate a manual page for the programme or function(s) 
+	that are contained within the file. The SCD section contains
+	a combination of &ital(macros) and documentation text
+	which when compiled by an &lit(XFM) compiler produces 
+	formatted document.  
+	The &lit(scd_start.im) file contains all of the &lit(XFM) 
+	macros that are needed to support the SCD concept. 
+
+&space
+&subcat	Running The Formatter
+	The proper &lit(XFM) component is invoked for a given source file
+	(f.c or f.ksh) when the command &lit(make f.html) or &lit(make f.man) 
+	is entered at the command line.  The formatter (&lit(TFM) or 
+	&lit(HFM)) is instructed to process &lit(f.c) and to parse 
+	&lit(scd_start.im) before any lines from &lit(f.c) are read. 
+	Once the macros have been setup, a final command in &lit(scd_start)
+	instructs the formatter to skip everything until it finds the 
+	&lit(^&scd_start) macro referenced in the SCD section of the 
+	source file.  The SCD documentation is then formatted and placed 
+	into the proper output file.
+
+&space	
+&subcat	Macros
+	Macros are &lit(XFM) variables that contain a combination of 
+	constant text, variables, parameter references or &lit(XFM) 
+	commands.  They allow for the combination of several actions 
+	to take place with the inclusion of one macro statement in the 
+	SCD section. Macros are dereferenced using the ampersand (^&)
+	character and have one of two formats:
+&space
+&beglitb
+	&macro_name
+	&macro_name(parameter_1:parameter_2:...:parameter_n)
+&endlitb
+&space	Similar to Korn Shell variable usage, macro names that are to 
+	be abutted to other text should be enclosed within curley 
+	braces ({ and }). Macros that accept parameters do not need
+	curley braces when text is appended to the macro extension
+	(e.g. ^&ital(first)name). It is also permitted to abutt
+	two macros (e.g. ^&ital(name)&lit(.html))  
+
+&space	Within the parameter list for a macro, parenthesis can be entered
+	provided that there is a matching number of open and close
+	parenthesis.  If an unbalanced set of parenthesis need to 
+	be passed to a macro, then the escape character (^^) must be 
+	used on &stress(both) opening and closing parenthesis in the 
+	parameter list.  
+
+&space	Colons are used as parameter separaters within a parameter list.
+	All of the SCD defined macros which require parameters, accept
+	only one parameter.  Should the parameter string need to 
+	include a colon, it must be escaped. For example:
+&space
+	&lit(^&lit(http^^^://bugger.mynet.com/~rock-spider))
+&space
+	
+	Macros that are defined in &lit(scd_start.im) can be divided into 
+	two catigories: section headers and control macros. The following 
+	is a list of each of the section header macros. Macros that require
+	that a parameter string be passed are indicated with an empty 
+	set of parenthesis.
+
+&space
+&begterms
+&term	^&desc : Starts the &ital(Description) section. This section is used to 
+	descibe the source code which is being documented. 
+
+&space
+&term	^&doc_title(name:text) : This macro performs several functions using the 
+	paramters passed within the parenthesis. The parameters are the 
+	function/programme &ital(name) (e.g. ng_cte) and the text is the short 
+	descriptive text that is placed under the &ital(Name) heading on the
+	formatted man page. 
+	The &ital(doc_title) macro will set the &ital(xtitle) variable, which 
+	is used by the &ital(name) macro, and then invokes the &ital(name) 
+	macro to add the name section to the formatted output. 
+	The &ital(xtitle) macro is set to be the &ital(name) and short 
+	description separated with a dash (-) character.
+	The &ital(doc_title) also sets two other macros that can be used 
+	within the remainder of the SCD text. These macros are &ital(this)
+	and &ital(This). Both are set to the &ital(name) supplied inside of 
+	the &ital(doc_title) parameter list, with the first character being
+	capitalised when the &ital(This) macro is used. 
+&break
+	The title specified here is placed inside of &lit(<title>) 
+	HTML tags when the &lit(HFM) component of &lit(XFM) is used to 
+	parse the SCD source. The generally accepted syntax for the 
+	title is:
+&space
+	&lit(name - short description)
+&space
+	&stress(NOTE^:) This macro is new and replaces the combination 
+	of &lit(^&title, ^&name,) and ^lit(^&utitle) macros that were
+	necessary to support the Gecko SCD environment.
+
+&space
+&term	^&error : Causes the &ital(Error) section to be started by placing 
+	a header into the output. 
+	Any error messages that may be generated by the function/programme
+	are to be documented in this section.
+&space
+
+&term	^&examp : Used to start the &ital(Examples) section. This section is used
+	to supply any usage or programming examples that apply to the 
+	functions/programme being documented.
+&space
+
+&term	^&exit : Begins the &ital(Exit) section of the document. For shell scripts
+	and programmes this section is used to describe the exit values that
+	are returned.
+&space
+
+&term 	^&files : Causes the &ital(Files) section to be started.
+	Any important files that the programme or function uses should be 
+	described within the Files section.  
+&space
+
+&term 	^&mods : The &ital(Moidification) section is started with this macro 
+	and is used to contain a list of modifications made to the source.
+	The format of the modifications list should be a term list
+	where the date is supplied as the term.
+&space
+
+&term 	^&opts : The &ital(Options) section describes any command line options 
+	and values that are recognised by the source code. In most cases 
+	the options are described using a term list.
+&space
+&term	^&parms : This macro causes the &ital(Parameter) section to be started. 
+	The Parameter section is used to describe any parameters that 
+	the function accepts, or any positional parameters that a 
+	programme or shell script requires on the command line. 
+&space
+&term	^&name : Causes the &ital(Name) section header to be written into the 
+	document and is the only macro that does not require any 
+	text to follow it.  It will automatically insert the text that 
+	was coded with the ^&title macro. 
+&space	&stress(NOTE^:) The &lit(^&name) macro is deprecated. It is 
+	currently supported only for backwards compatability for the 
+	Gecko SCD documentation. For new code, the &lit(^&doc_title)
+	macro should be used.
+&space
+
+&term	^&notes : Begins a &ital(Notes) section in which the author can place
+	any miscelaneous notes pertaining to the software being 
+	documented. 
+
+&space
+&term	^&return : Begins the &ital(Return Values) section which is used
+	to describe all of the values that are returned by the 
+	function being documented.
+
+&space
+&term	^&see : A list of related manual page names is placed under the 
+	&ital(See Also) header which is generated by this macro. The list 
+	is typically a comma separated list of names with their 
+	UNIX Manual section number in parentheses. 
+
+&space
+&term	^&subcat : This macro allows a subcatigory header to be 
+	inserted into the text. This allows for sections such as the 
+	&ital(Description) section to be better organised. 
+
+&space
+&term	^&synop : This macro is used to start the &ital(Synopis) section.
+	The synopsis section is formatted using a fixed witdth font and
+	is used to provide the invocation syntax for each programme/function
+	described within the SCD section.  For &lit(C) functions the 
+	necessary &lit(#include) statements should also be listed with 
+	the invocation syntax. 
+
+
+&space
+&term	^&title : Defines the title for the manual page. 
+&break	&stress(NOTE^:) This macro is deprecated and is supported only to 
+	provide backward compatability with the SCD sections that 
+	are being ported from Gecko. The &ital(^&doc_title) macro should 
+	be used in place of this macro.
+&endterms
+
+&space	The following is a list of the control macros that are defined 
+	by the &lit(scd_start.im) file. 
+&space
+&begterms
+&term	^&beglitb : Begins a literal block of text. All text lines are 
+	output &stress(exactly) as they appear in the source until the 
+	&lit(^&endlitb) macro is encountered. 
+	When generating HTML output, a fixed width font is used for the 
+	literal block. Within a literal block, macros are &stress(not) 
+	expanded, unless the variable symbol (^&) is in the first 
+	column of the line (read: the &lit(^&endlitb) macro &stress(MUST)
+	be in column 1!). 
+	In the Gecko SCD environment
+	this macro was &lit(^&litblkb), but has been renamed for consistency
+	with other begin macros.
+&space
+&term	^&beglist : Begins a bulletted list. The &lit(^&item) macro can be 
+	used betwen &lit(^&beglist) and &lit(^&endlist) macros. 
+&space
+&term	^&begterms : Begins a list of definition terms list (this list is an 
+	example of a definition terms list). The list is terminated with 
+	a &lit(^&endterms) macro, and ^lit(^&term) macros can be used 
+	after between these macros to define each term. The default width 
+	for the term space is approximately one eight of the "page" width.
+&space
+&term	^&break : Causes the text that follows this macro to be started 
+	on a new line.
+&space
+&term	^&endlitb : Ends a literal block of text. 
+&space
+&term	^&endlist : Ends a bulletted list.
+&space
+&term	^&endterms : Ends a definition terms list.
+&space
+&term	^&indent : Causes the left margin to be indented approximately
+	one sixteenth of the "page" width.
+&space
+&term	^&ital() : Causes all text passed as a paramter to be formatted 
+	in italics. (Ignored by &lit(TFM).)
+&space
+&term	^&item : Starts a new item in a list. A bullet is inserted 
+	prior to the next text token.
+&space
+&term	^&lgterms : Stars a definition term list as is done by 
+	&lit(^&begterms), except the term size reserved is larger 
+	than that reserved by &lit(^&begterms).
+&space
+&term	^&lit() : Causes all text passed as a parameter to be 
+	printed in a fixed width font. (Ignored by &lit(TFM).)
+&space
+&term	^&manpage() : Creates a link to the named manual page HTML 
+	document. This has been carried over from the Gecko environment
+	but has not been implemented as of yet because the location 
+	of manual pages is not yet known.
+&space
+&term	^&owner() : Causes an ownership statment to be placed into the 
+	document. Generally this macro is used as the first text entry
+	in the &ital(Modification) section. The text that is placed
+	inside the parenthesis is listed as the owner. 
+&space
+&term	^&scd_start : This is the macro that is used to identify the 
+	start of the Self Contained Documentation section that has 
+	been embedded inside of a &lit(C) or Kshell source programme.
+	No other SCD macros or text should be placed before this macro.
+&space
+&term	^&scd_end : This causes the &lit(XFM) formatter to cleanup the 
+	document and quit formatting. Any SCD statements that appear 
+	after this macro will not be processed.
+&space
+	^&seelink() : Defines a link in the 'see also' section. When the 
+	manpage is formatted with the HTML generator, this causes a link
+	to the referenced manual page to be included. The macro
+	accepts two parameters: The manual page catigory (e.g. lib, tool)
+	and the name of the file.  As an example, this would reference
+	the &ilt(ng_time) module in the Ningaui library catigory:
+&litblkb
+  ^&seelink(lib:ng_time)
+&litblke
+
+&space
+&term	^&smterms : Similar to the &lit(^&begterms) this macro starts a 
+	definition terms list, but with a fairly small area reserved 
+	for the terms.
+&space
+&term	^&space : Causes a blank line to be inserted into the document.
+&space
+&term	^&stress() : All text that is passed to this macro will be 
+	output in bold or highlighted font. (Ignored by &lit(TFM).)
+&space
+&term	^&term : Starts a definition term within a definiton list. 
+	The term text must immediately follow this macro. If the term 
+	and the first part of the document text are to reside on the 
+	same line, the last token of the term, and the first token of 
+	the document text, &stress(must) be separated by a colon that
+	is surrounded by whitespace. For example:
+&space
+	&lit(^&term aardvarks ^: A furry mamal with a strange appearance)
+
+&space
+&term	^&uindent : Causes the reversal of a previous &lit(^&indent) 
+	macro. 
+&endterms
+
+&examp	The following is a small example SCD section
+.** VERY BIG NOTE:  all things in this example must be indented in the source at least 
+.** 		one space to prevent {X}fm from interpreting it!
+&begbox
+&beglitb
+/* ------------------- SCD - Self Contained Documentation 
+ &scd_start
+ &doc_title(prime - A Simple Prime Number Generator)
+ 
+ &synop  prime [-man] [-q] [-v] number
+ 
+ &desc   &ital(Prime) is a small programme that will accept a number on 
+         the command line and report to the user whether or not  the 
+         number entered is a prime.
+  
+ &opts   The follwing options are recognised by &ital(prime):
+ &space
+ &begterms
+ &term   -man : Causes this manual page to be generated to the 
+         standard output device (but you knew that!). 
+ &space
+ &term   -q : Quiet mode. &ital(Prime) will operate without writing 
+         any information to the standard output device thus allowing 
+         a programme to test the return code without having to redirect
+         output.
+ &space
+ &term   -v : Verbose mode. The next largest and smallest prime numbers
+         will be written if &ital(number) is not a prime.
+ &endterms
+ 
+ &parms  &ital(Prime) accepts only one positional command line parameter
+         which is the number to be tested
+ 
+ &exit	&ital(Prime) will exit with a zero (0) if the number is prime
+         and non-zero if the number is not a prime.  This allows the 
+         following logic to be used in a Kshell script:
+ &space
+ &beglitb
+         if prime -q $number
+         then
+                 do_something_important $number	
+         fi
+  &endlitb
+
+ &mods	
+ &owner(Scott Daniels)
+ &lgterms
+ &term	1 Apr 2001 (sd) : Original code.
+ &term	3 Apr 2001 (sd) : Added -q option.
+ &endterms
+ &scd_end
+ ----------------------------------------------- */
+&endlitb
+&endbox
+
+&space
+&mods
+&owner(Scott Daniels)
+&lgterms
+&term	24 Mar 2001 (sd) : Original code, based on the concepts established
+		and implemented in 1997 for Gecko.
+&term	03 Apr 2001 (sd) : Tweeked things and added our own SCD for self formatting!
+&term	08 Aug 2006 (sd) : Fixed the lgterms start so that it defines the indented 
+		variable.  Caused problems in man pages that did not have any 
+		previous regular/small terms seciton.
+&term	25 Jan 2008 (sd) : Added seelink to allow see also references to our stuff 
+		to be links to the man page when html is generated.
+&endterms
+
+&scd_end
+
+.** Absolutely NOTHING below the next two lines! (they will be skipped)
+thats-all-folks
+.jm ^&scd_start

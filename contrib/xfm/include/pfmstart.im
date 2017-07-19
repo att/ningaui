@@ -1,0 +1,203 @@
+ .** ----------------------------------------------------------------------
+ .**
+ .** Mnemonic: pfmstart.im
+ .** Abstract: This file contains various start up stuff that is necessary
+ .** when using the pfm compiler to generate postscript documents
+
+
+ .** these things may be set to control things:
+ .** indent_size (e.g. .5i) amount of space indented when using &indent macro
+ .** litfont, boldfont, italfont  -- various fonts (e.g. Helvetia-demi)
+ .** textsize, exsize -- text and example font sizes (points)
+ .** if dont_set_ll is NOT defined, then we will set line length, and 1col mode
+ .** -----------------------------------------------------------------------
+
+ .** ensure this is really the pfm compiler
+ .**
+ .if pfm
+	.if ! dont_set_ll
+  		.cd 1 w=8.5i
+  		.ll 7i
+	.fi
+
+  .if ! localurl
+   .gv host
+   .dv localurl &{_host}
+  .fi
+
+ .if ! litfont
+	.dv litfont Courier
+ .fi
+ .if ! boldfont
+	.dv boldfont Helvetica-bold
+ .fi
+ .if ! italfont
+	.dv italfont Helvetica-italic
+ .fi
+ 
+ .if ! textsize
+ 	.dv textsize 8
+ .fi
+
+ .if ! exsize
+ 	.dv exsize 12
+ .fi
+
+ .if ! difont
+	.dv difont Helvetica-bold
+ .fi
+
+ .if ! textcolor
+	.dv textolor #000000
+.fi
+
+ .** ---------------------------------------------------------------------
+ .** empty cells in table should have break statements in them
+ .** ---------------------------------------------------------------------
+ .dv empty .br
+
+ .** ---------------------------------------------------------------------
+ .** various HTML generating macros to allow document to contain links and
+ .** references to images. Each macro accepts one or more parameters
+ .** that are separated by a colon (:). As URLs contain colons it is
+ .** necessary to seperate out distinct parts as parameters (flink and
+ .** plink.
+ .** link - generate a standard link.
+ .**   &link(URL:Text description placed on page)
+ .** dlink - generate a relative to the document link
+ .**   &dlink(path:Text description placed on page)
+ .** flink - Generates a link to a file
+ .**   &flink(drive:file:text description placed on page)
+ .** plink - Generates a link that includes a port number
+ .**   &plink(url:port:text descriptin placed on page)
+ .** jlink - A link with a javascript reference inside
+ .**   &jlink(function-name:parameters:text for page)
+ .** tlink - Generate a target link for a frame set
+ .**   &tlink(url:target-name:text for page)
+ .** mlink - Generate a mailto link
+ .**   &mlink(mailaddress)
+ .** image - generate an image tag
+ .** &image(location_of_image)
+ .** ---------------------------------------------------------------------
+ .**
+ .dv link $2 ("http^://$1)
+ .dv dlink $2
+ .dv slink $2 ("https^://$1)
+ .dv alink $2 (http^://$1^:$2^)
+ .dv llink $2 ($1)
+ .dv jlink $3 [javascript-link]
+ .dv tlink $3 (href=$1 target=$2)
+ .dv anchor 
+ .dv flink $3 (href=file^:///$1^:$2)
+ .dv plink $3 (http://$1:$2)
+ .dv mlink $1
+ .dv image [IMAGE] ($1)
+ .dv lower .lc $1 ^:
+
+
+ .** ---------------------------------------------------------------------
+ .** specify formatting macros &name(text)
+ .** cmd - write text as a command (courier type format)
+ .** ccmd - same as command but centered on the line
+ .** stress - Bold the text in the parens
+ .** ital - italize the text in the parens
+ .** pvar - Place a variable in parentheses
+ .** big - Set to a large font size for what is in parentheses
+ .** ---------------------------------------------------------------------
+ .dv lit .sf ^&litfont $1 .sf ^&textfont
+ .dv cw .sf ^&litfont $1 .sf ^&textfont
+
+ .dv stress .sf ^&boldfont $1 .sf ^&textfont
+ .dv bold .sf ^&boldfont $1 .sf ^&textfont
+ .dv cstress .sf ^&boldfont .ce $1 ^: .sf ^&textfont
+
+ .dv ital .sf ^&italfont $1 .sf ^&textfont
+
+ .dv big .st 20 $1 .st ^&textsize
+ .dv small .st 4 $1 .st ^&textsize
+
+ .dv icount 0
+
+ .dv no_cache
+
+ .if ! doc_title
+	doc_title Untitled
+ .fi
+
+
+
+ .** -----------------------------------------------------------------------
+ .** html things that need to result in 'blanks'
+ .** -----------------------------------------------------------------------
+ .if forms
+ .dv button 
+ .dv nbutton 
+ .dv radio 
+ .dv radioc 
+ .dv radion 
+ .dv radiocn 
+ .dv xbox 
+ .dv input 
+ .dv input_blk 
+ .dv inputv 
+ .dv hide 
+ .dv form_def 
+ .dv form_get 
+ .dv form 
+ .dv gform 
+ .dv eform 
+ .fi
+
+ .** user has asked for java support
+ .** ------------------------------------------------------------------------
+ .if java
+ .dv java 
+ .dv javastart 
+ .dv javaend 
+ .fi
+
+ .** special variables for applets
+ .** -------------------------------------------------------------------
+ .if applet
+ .dv applet 
+ .dv japplet 
+ .dv param 
+ .dv eapplet
+ .fi
+
+
+
+ .** code to support style things
+ .** ----------------------------------------------------------------------
+ .if style
+ .dv sstyle 
+ .dv st_hover
+ .dv st_link
+ .dv estyle 
+ .dv divb 
+ .dv dive 
+ .fi
+
+ .** page title things -- center the title in big letters (p1) and small (p2)
+ .** .dv p1title .pa .ln ^<center^>^<b^> $1 ^</b^> ^</center^>
+ .** .dv p2title .ce $1 ^:
+
+ .if ! indentsize
+	.dv indentsize .5i
+ .fi
+ .dv indent  .ll -^&indentsize .in +^&indentsize
+ .dv uindent .in -^&indentsize .ll +^&indentsize
+
+
+
+
+ .** define start and end revison macros
+ .** -----------------------------------------------------------------------
+ .dv srev .co #0000ff
+ .dv erev .co ^&textcolor
+
+
+ .fi
+
+ .fi
+

@@ -1,0 +1,109 @@
+.** ----------------------------------------------------------------------
+.**
+.** Mnemonic: tfmstart.im
+.** Abstract: This file contains various start up stuff that is necessary
+.** 	when using the tfm compiler. It is based on the hfm startup file and 
+.** 	basically makes most macors inert as tfm provides little to the user.
+.** -----------------------------------------------------------------------
+
+.** ensure this is really the tfm formatter
+.**
+.if tfm
+	.ll 7i
+	.cd 1 w=8.5i
+
+	 .if ! localurl
+		.gv host
+		.dv localurl &{_host}
+	.fi
+
+	.** define header space before/after
+	.dh 1 s=22 
+	.dh 2 s=21
+	.dh 3 s=20
+
+	.** ---------------------------------------------------------------------
+	.** empty cells in html should have break statements in them
+	.** this provides compatability with docs targeted to html	
+	.** ---------------------------------------------------------------------
+	.dv empty .br
+
+	.** ---------------------------------------------------------------------
+	.** html links are listed with the "text" and the URL in parens. This 
+	.** does not always make sense, so sometimes just the text is listed.
+	.** link - generate a standard link.
+	.**   &link(URL:Text description placed on page)
+	.** flink - Generates a link to a file
+	.**   &flink(drive:file:text description placed on page)
+	.** plink - Generates a link that includes a port number
+	.**   &plink(url:port:text descriptin placed on page)
+	.** jlink - A link with a javascript reference inside
+	.**   &jlink(function-name:parameters:text for page)
+	.** tlink - Generate a target link for a frame set
+	.**   &tlink(url:target-name:text for page)
+	.** mlink - Generate a mailto link
+	.**   &mlink(mailaddress)
+	.** image - generate an image tag
+	.** &image(location_of_image)
+	.** ---------------------------------------------------------------------
+	.**
+	.dv link $2 (http^://$1)
+	.dv slink $2 (https^://$1)
+	.dv alink $2 (http^://$1^:$2)
+	.dv llink $2 ($1)
+	.dv jlink $3
+	.dv tlink $3
+	.dv anchor ` `
+	.dv flink $3 (file^:///$1^:$2)
+	.dv plink $3 (http://$1:$2)
+	.dv mlink $1
+	.dv image .br ^[IMAGE:$1] .br
+	.dv lower ` `
+
+	.** ---------------------------------------------------------------------
+	.** these are inert when generating plain text output
+	.** lit		- literal or constant width text
+	.** cw		- literal or constant width text
+	.** stress 	- Bold the text in the parens
+	.** bold 	- Bold the text in the parens
+	.** ital 	- italize the text in the parens
+	.** ---------------------------------------------------------------------
+	.dv lit $1
+	.dv cw $1
+	.dv lit $1
+	.dv stress  $1
+	.dv bold $1
+	.dv ital $1
+	.dv Ital .tu 1 $1
+	
+	.dv icount 0
+	
+	.dv no_cache ` `
+	
+	.** ------------------------------------------------------------------------
+	.** indent and uindent - should be fairly obvious
+	.** ------------------------------------------------------------------------
+	.dv indent .ll -.5i .in +.5i
+	.dv uindent .in -.5i .ll +.5i
+
+
+
+	.** define start and end revison macros (meaningless for tfm)
+	.** -----------------------------------------------------------------------
+	.dv srev .sf color=#0000ff
+	.dv erev .sf ^&textfont
+	
+	.** for loop and multiple space definitions
+	.** &for(varname:start_value:expression:command(s))
+	.** &for(i:0:< 10: 1 +: .sp ) .** space 10 lines
+	.** &mspace(number)
+	.** --------------------------------------------------------------------
+	.dv for .dv $1 $2 ^: .do $1 $3 $5 .dv $1 ^^[ ^^&$1 $4 ]
+	.** .dv mspace ^&for(ms:0:< $1 :1 + :^<center^> .br ^</center^>)
+	
+	
+	.** set default text sizes and example sizes for earier defined macros
+	.dv textsize 8
+	.dv exsize 12
+.fi
+

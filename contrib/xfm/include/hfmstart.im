@@ -1,0 +1,251 @@
+ .** ----------------------------------------------------------------------
+ .**
+ .** Mnemonic: hfmstart.im
+ .** Abstract: This file contains various start up stuff that is necessary
+ .** when using the hfm compiler to generate a HTML document from
+ .** .psf source.
+ .** -----------------------------------------------------------------------
+
+ .** ensure this is really the hfm compiler
+ .**
+ .if hfm
+  .ll 7i
+  .cd 1 w=8.5i
+
+  .if ! localurl
+   .gv host
+   .dv localurl &{_host}
+  .fi
+
+ .** ---------------------------------------------------------------------
+ .** empty cells in html should have break statements in them
+ .** ---------------------------------------------------------------------
+ .dv empty .br
+
+ .** ---------------------------------------------------------------------
+ .** various HTML generating macros to allow document to contain links and
+ .** references to images. Each macro accepts one or more parameters
+ .** that are separated by a colon (:). As URLs contain colons it is
+ .** necessary to seperate out distinct parts as parameters (flink and
+ .** plink.
+ .** link - generate a standard link.
+ .**   &link(URL:Text description placed on page)
+ .** dlink - generate a relative to the document link
+ .**   &dlink(path:Text description placed on page)
+ .** flink - Generates a link to a file
+ .**   &flink(drive:file:text description placed on page)
+ .** plink - Generates a link that includes a port number
+ .**   &plink(url:port:text descriptin placed on page)
+ .** jlink - A link with a javascript reference inside
+ .**   &jlink(function-name:parameters:text for page)
+ .** tlink - Generate a target link for a frame set
+ .**   &tlink(url:target-name:text for page)
+ .** mlink - Generate a mailto link
+ .**   &mlink(mailaddress)
+ .** image - generate an image tag
+ .** &image(location_of_image)
+ .** ---------------------------------------------------------------------
+ .**
+ .dv link ^<a href="http^://$1"^>$2 ^</a^>
+ .dv dlink ^<a href="$1"^>$2 ^</a^>
+ .dv slink ^<a href="https^://$1"^>$2 ^</a^>
+ .dv alink ^<a href=http^://$1^:$2^>$2 ^</a^>
+ .dv llink ^<a href=$1^>$2 ^</a^>
+ .dv jlink ^<a href="javascript: $1('$2')"^>$3^</a^>
+ .dv tlink ^<a href=$1 target=$2^>$3 ^</a^>
+ .dv anchor ^<a name="$1"^>^</a^>
+ .dv flink ^<a href=file^:///$1^:$2^>$3 ^</a^>
+ .dv plink ^<a href=http://$1:$2^>$3 ^</a^>
+ .dv mlink ^<a href=mailto:$1^>$1^</a^>
+ .dv image .br ^<img src="$1"^> .br
+ .dv lower .lc $1 ^:
+ .if [ 0 ]
+ .dv manpage ^&link(^&{localurl}/^~gecko/man/$1.html:^&ital($1))
+ .dv gmp ^&link(^&{localurl}/^~gecko/man/gk_$1.html:^&ital(gk_$1))
+ .dv vmanpage ^&link(^&{localurl}/^~gecko/man/$1.html:$2)
+ .dv dvmanpage ^&link(^&{localurl}/^~gecko/man/dtools/$1.html:$2)
+ .dv dmanpage ^&link(^&{localurl}/^~gecko/man/dtools/$1.html:$1)
+ .fi
+
+ .** ---------------------------------------------------------------------
+ .** specify formatting macros &name(text)
+ .** cmd - write text as a command (courier type format)
+ .** ccmd - same as command but centered on the line
+ .** stress - Bold the text in the parens
+ .** ital - italize the text in the parens
+ .** pvar - Place a variable in parentheses
+ .** big - Set to a large font size for what is in parentheses
+ .** ---------------------------------------------------------------------
+ .dv cmd ^ .st ^[ ^&textsize 4 + ] ^<tt^>$1^</tt^> .st ^&textsize
+ .dv lit ^ .st ^[ ^&textsize 4 + ] ^<tt^>$1^</tt^> .st ^&textsize
+ .dv lit ^<tt^>$1^</tt^>
+ .dv cw ^<tt^>$1^</tt^>
+ .dv ccmd  .st ^[ ^&textsize 4 + ] ^<tt^> .ce $1 ^: ^</tt^> .st ^&textsize
+ .dv bstress  .st ^[ ^&textsize 4 + ] ^<b^>$1^</b^> .st ^&textsize
+ .dv stress  ^<b^>$1^</b^> 
+ .dv bold ^<b^>$1^</b^> 
+ .dv cstress .st ^[ ^&textsize 4 + ] ^<b^> .ce $1 ^: ^</b^> .st ^&textsize
+ .dv ital ^<i^>$1^</i^>
+ .dv Ital ^<i^> .tu 1 $1^</i^>
+ .dv pvar ($1)
+ .dv big .st 20 $1 .st ^&textsize
+ .dv small .st 4 $1 .st ^&textsize
+
+ .dv icount 0
+
+ .dv no_cache .nl ^<META HTTP-EQUIV="Pragma" CONTENT="no-cache"^>
+
+ .** ---------------------------------------------------------------------
+ .** title variable MUST be called by the source to properly generate
+ .** the title and body tags for an HTML doc. If the caller provided
+ .** a doc_title variable for us, this imbed file will invoke the ti macro.
+ .** We also will set colors for text, background and links if none were
+ .** defined before inclusion of this file. If the variable alt_color is
+ .** defined then colors are set to an alternate default set.
+ .** ----------------------------------------------------------------------
+ .if frames
+  .dv ti ^<title^> $1 ^</title^> ^</head^> : .** no body in a frameset doc
+
+  .dv c_frameset .if "$1" "start" = ^: ~
+           ^<frameset cols="$2" border="$3"^> .ei ^</frameset^> .fi
+  .dv frameset_r .if "$1" "start" = ^: ~
+           ^<frameset rows="$2" border="$3"^> .ei ^</frameset^> .fi
+  .dv frame ^<frame name="$1" src="$2"^>
+ .ei
+  .if nocolor : .** if no colors to be put in document
+   .dv ti ^<title^> $1 ^</title^> ^</head^>^<body ^>
+  .ei
+   .if ! text_color
+    .dv text_color ^#ffffff
+   .fi
+   .if ! back_color
+    .** .dv back_color ^#ffffff
+    .dv back_color ^#204060
+   .fi
+   .if ! link_color
+    .dv link_color vlink=^#606060 link=^#008000
+   .fi
+   .if ! rev_color
+    .dv rev_color ^#0000ff
+   .fi
+
+   .dv ti ^<title^> $1 ^</title^> ^</head^>^<body TEXT=^&text_color ~
+           bgcolor=^&back_color ^&link_color  ^>
+  .fi .** end else if nocolour
+ .fi  .** end else not frame set
+
+
+ .** -----------------------------------------------------------------------
+ .** variables for forms generation if the variable forms is set
+ .** eform_def and eform_get are explicit -- user must define http:// (this 
+ .** allows for relative to the current site/document forms)
+ .** -----------------------------------------------------------------------
+ .if forms
+ .dv button .nl ^<input type=$1 .nl value="$2" ^>
+ .dv nbutton .nl ^<input type=$1 .nl value="$2" .nl name="$3" ^>
+ .dv radio .nl ^<input type=radio .nl name="$1" .nl value="$2"^>
+ .dv radioc .nl ^<input type=radio checked .nl name="$1" .nl value="$2"^>
+ .dv radion .nl ^<input type=radio .nl name="$1" .nl value="$1$2"^>
+ .dv radiocn .nl ^<input type=radio checked .nl name="$1" .nl value="$1$2"^>
+ .dv xbox .nl ^<input type=checkbox .nl name="$1" .nl value="$2"^>
+ .dv input .nl ^<input type=$1 .nl name="$2" size=$3 maxlength=$4 value="" ^>
+ .dv input_blk .nl ^<textarea name="$1" rows="$2" cols="$3" wrap="soft" ~
+               maxlength=8 value="" ^>^</textarea^>
+ .dv inputv .nl ^<input type=$1 .nl name="$2" size=$3 maxlength=$4 value="$5" ^>
+ .dv hide .nl ^<input type=hidden .nl name=$1 .nl value="$2" ^>
+ .** default method form, form is a POST method form
+ .dv form_def .nl ^<form .nl name="$3" .nl action="http://$1$2" ^>
+ .dv eform_def .nl ^<form .nl name="$2" .nl action="$1" ^>
+ .dv form_get .nl ^<form .nl name="$2" method=get .nl action="http://$1" ^>
+ .dv eform_get .nl ^<form .nl name="$2" method=get .nl action="$1" ^>
+ .dv form .nl ^<form .nl name="$3" method=POST .nl action="http://$1:$2" ^>
+ .dv gform .nl ^<form .nl name="$3" method=POST .nl action="http://$1$2" ^>
+ .dv eform .nl ^</form^>
+ .fi
+
+ .** user has asked for java support
+ .** ------------------------------------------------------------------------
+ .if java
+ .dv java .nl ^<script language=JavaScript^> ^<!-- .nl .ai
+ .dv javastart .nl ^<script language=JavaScript^> .nl .ai
+ .dv javaend .nl ^</script^>
+ .fi
+
+ .** special variables for applets
+ .** -------------------------------------------------------------------
+ .if applet
+ .dv applet ^<applet code="$1" height=$2 width=$3 ^>
+ .dv japplet ^<applet code="$1" archive="$2" height=$3 width=$4 ^>
+ .dv param .nl ^<param name="$1" value="$2" ^>
+ .dv eapplet ^</applet^>
+ .fi
+
+
+
+ .** code to support style things
+ .** ----------------------------------------------------------------------
+ .if style
+ .dv sstyle ^<style^> .nl ^<!--
+ .dv st_hover A:hover {text-decoration:bold;color:$1;}
+ .dv st_link A:hover {text-decunderline;color:$1;}
+ .dv estyle --^> .nl ^</style^>
+ .dv divb ^<div id="$1" class="$2" ^>
+ .dv dive ^</div^>
+ .fi
+
+ .** page title things -- center the title in big letters (p1) and small (p2)
+ .dv p1title .pa .ln ^<center^>^<b^> $1 ^</b^> ^</center^>
+ .dv p2title .ce $1 ^:
+
+ .** ------------------------------------------------------------------------
+ .** indent and uindent are NOT defined for hfm as .bl and .bd automatically
+ .** are indented in HTML
+ .** <div> crap needed for opera
+ .** ------------------------------------------------------------------------
+ .dv indent .bl ^: ^<div^>
+ .dv uindent .el ^</div^>
+
+
+
+ .** define start and end revison macros
+ .** -----------------------------------------------------------------------
+ .** .dv srev .dv olds ^&textsize ^: ~
+ .** .dv textsize ^&olds ^<font color= ^&rev_color ^> ^: ~
+ .** .st ^&textsize
+ .dv srev .sf color=#0000ff
+ .** .dv erev ^</font^> .dv textsize ^&olds ^: .st ^&textsize
+ .dv erev .sf ^&textfont
+
+ .** if user specified a document title string before imbedding this file
+ .** then we will call the title macro on their behalf!
+ .** user can define skip_header if they want to do their own header setup
+ .** (used by things like self contained documentation)
+ .** -----------------------------------------------------------------------
+ .if ! skip_header
+  .if doc_title
+    &ti(&doc_title)
+  .ei
+   ^</head^>
+    .if ! frames
+     ^<body^>
+    .fi
+  .fi
+ .fi
+
+ .** for loop and multiple space definitions
+ .** &for(varname:start_value:expression:command(s))
+ .** &for(i:0:< 10: 1 +: .sp ) .** space 10 lines
+ .** &mspace(number)
+ .** --------------------------------------------------------------------
+ .dv for .dv $1 $2 ^: .do $1 $3 $5 .dv $1 ^^[ ^^&$1 $4 ]
+.** .dv mspace ^&for(ms:0:< $1 :1 + :^<center^> .br ^</center^>)
+
+
+ .** set default text sizes and example sizes for earier defined macros
+ .if ! textsize
+ 	.dv textsize 8
+ .fi
+
+ .dv exsize 12
+ .fi
+

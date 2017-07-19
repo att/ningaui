@@ -1,0 +1,21 @@
+.if ! imbed
+	.gv e NG_SRC src_dir
+ 	.dv imbed &{src_dir}/include 
+.fi
+
+.if hfm
+ .im &{imbed}/hfmstart.im
+.ei
+ .if pfm
+  .im &{imbed}/pfmstart.im
+ .ei
+  .if rfm
+   .im &{imbed}/rfmstart.im
+  .ei 
+   .if tfm
+    .im &{imbed}/tfmstart.im
+   .fi
+  .fi
+ .fi
+.fi
+
