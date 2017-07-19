@@ -105,7 +105,7 @@ while [[ $1 = -* ]]
 base="${1%.*}"
 suf=${1##*.}
 
-if [[ tfm_exists -gt 0 ]]
+if [[ $tfm_exists -gt 0 ]]
 then
 	secondary=`grep -c "\&secondary" $base.$suf 2>/dev/null`
 
