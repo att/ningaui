@@ -32,6 +32,7 @@
 #			things. 
 #		26 Nov 2007 (sd) : Added ability to create a mk Makefile helper file if it does 
 #			not exist. 
+#		14 Mar 2018 (sd) : fix test for user/login.
 # ---------------------------------------------------------------------------------
 
 # install pkg files that are here; we unload them into the directory that was given on 
@@ -288,11 +289,11 @@ r=""
 do_all=0
 nuke_first=0
 
-if [[ -n $USER ]]		# bloody sunos -- old shells, bad awk, uncapable vi, and no var
+if [[ -z $USER ]]		# bloody sunos -- old shells, bad awk, uncapable vi, and no var
 then
 	USER=$LOGIN
 fi
-if [[ -n $USER ]]		# bloody sunos -- old shells, bad awk, uncapable vi, and no var
+if [[ -z $USER ]]		# bloody sunos -- old shells, bad awk, uncapable vi, and no var
 then
 	log_msg "cannot figure out user name USER and LOGIN seem unset; export one and restart"
 	cleanup 1
